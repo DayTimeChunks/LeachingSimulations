@@ -27,7 +27,7 @@ def add_margin(ax, x=0.05, y=0.05):
     ax.set_ylim(ylim[0]-ymargin, ylim[1]+ymargin)
 
 
-def hydroplot(data):
+def hydroplot(data, leach_high_6min, leach_med_12min, leach_med_30min, leach_low_30min):
     """
     :param data: see: leach_hydrology.py. Need to ensure data
     data[:, 0] = time
@@ -66,14 +66,9 @@ def hydroplot(data):
 
     """ Lab results """
     # Minutes
-    six = np.array([6, 6, 6, 6, 6, 6, 6, 6])
-    twelve = np.array([12, 12, 12, 12, 12, 12, 12, 12])
-    thirty = np.array([30, 30, 30, 30, 30, 30, 30, 30])
-
-    leach_high_6min = np.array([16.253, 12.952, 13.609, 13.610, 17.536, 14.29, 17.676, 17.705])  # all at 6 min
-    leach_med_12min = np.array([10.089, 5.902, 13.787, 11.112, 13.981, 10.602, 11.858, 11.294])  # all at 12 min
-    leach_med_30min = np.array([49.197, 40.402, 48.185, 46.402, 45.772, 47.201, 48.164, 47.032])  # all at 30min
-    leach_low_30min = np.array([20.037, 17.508, 22.595, 19.082, 22.376, 20.085, 21.285, 20.871])  # all at 30min
+    six = np.array([6, 6, 6, 6])
+    twelve = np.array([12, 12, 12, 12])
+    thirty = np.array([30, 30, 30, 30])
 
     ax1.plot(six, leach_high_6min, color='k', marker='s', linestyle='None')
     ax1.plot(twelve, leach_med_12min, color='k', marker='^', linestyle='None')
@@ -91,7 +86,7 @@ def hydroplot(data):
     plt.show()
 
 
-def metalplot(data, obs_sol_sterile, obs_sol_untreat, title):
+def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     """
     :param data:
      index 0 = time
