@@ -3,7 +3,7 @@ Contaminant Transport in Microcosms
 
 This repository collects progress on leaching models written in python.  
 
-To contribute follow these steps:
+To contribute follow these steps: http://rogerdudler.github.io/git-guide/
 
 A. Download the project to your computer
 
