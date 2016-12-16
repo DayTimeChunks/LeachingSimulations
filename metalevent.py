@@ -1,12 +1,10 @@
 from math import exp
 from hydroplots import *
-import numpy as np
-from mixinglayer import *
 
 
-def copper_ret(Kd_min, Kd_max, pb, ov_sat, water_data, area, soil_height):
+def metal_ret(Kd_min, Kd_max, pb, ov_sat, water_data, area, soil_height, mass_ini_sterile, mass_ini_untreated):
     """
-    Water data:
+    Water data: leaching, 1st pulse
     """
     vol_h2o_sat = area * soil_height * ov_sat
     cum_time_30min = water_data[:, 0]
@@ -15,14 +13,9 @@ def copper_ret(Kd_min, Kd_max, pb, ov_sat, water_data, area, soil_height):
     leach_30min = water_data[:, 3]
     leached_vol = [leach_6min, leach_12min, leach_30min]
 
-    """ Copper Lab Data"""
-    #  Mass initial (untreated)
-    mass_ini_sterile = (1627 + 1107) / float(2)  # all intensities:{0d, 10d)
-    mass_ini_untreated = (1184 + 1177) / float(2)  # all intesities:{0d, 10d)
-
     """
     Simulations for min Kd (three rainfall intesities)
-    Kd_min is matched to iniital mass in the sterile soils (mass_ini_sterile: {higher output})
+    Kd_min relates to sterile soils (mass_ini_sterile: {higher output})
     """
     conc_old = mass_ini_sterile/vol_h2o_sat
     r_factor_min = 1 + (pb * Kd_min) / ov_sat
@@ -54,7 +47,7 @@ def copper_ret(Kd_min, Kd_max, pb, ov_sat, water_data, area, soil_height):
 
     """
     Simulations for max Kd (three rainfall intesities)
-    Kd_max is matched to iniital mass in the untreated soils (mass_ini_sterile: {lower output})
+    Kd_max realtes to untreated soils (mass_ini_sterile: {lower output})
     """
     conc_old = mass_ini_untreated / vol_h2o_sat
     r_factor = 1 + (pb * Kd_max) / ov_sat

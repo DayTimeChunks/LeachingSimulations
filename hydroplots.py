@@ -1,17 +1,17 @@
-import pylab
 import numpy as np
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
 
 def stackdata9(time, l1, l2, l3, l4, l5, l6 , l7, l8, l9):
-    data = np.column_stack((time, l1, l2, l3, l4, l5, l6 , l7, l8, l9))
+    data = np.column_stack((time, l1, l2, l3, l4, l5, l6, l7, l8, l9))
     return data
+
 
 def stackdata6(time, l1, l2, l3, l4, l5, l6 ):
     data = np.column_stack((time, l1, l2, l3, l4, l5, l6))
     return data
+
 
 def add_margin(ax, x=0.05, y=0.05):
     # This will, by default, add 5% to the x and y margins. You
@@ -27,29 +27,7 @@ def add_margin(ax, x=0.05, y=0.05):
     ax.set_ylim(ylim[0]-ymargin, ylim[1]+ymargin)
 
 
-def hydroplot(time,
-              y1, y2, y3,
-              y4, y5, y6,
-              y7, y8, y9):
-    sns.set(style="darkgrid")
-    # sns.set(style="whitegrid")
-    intesities = ['P(135 mm/h)', 'P(55 mm/h)', 'P(30 mm/h)',
-                  ]
-    color_sequence = ['#d62728', '#2ca02c', '#1f77b4']
-    fig, ax1 = plt.subplots()
-    ax1.plot(time, y1, color_sequence[0], label=intesities[0])
-    ax1.plot(time, y2, color_sequence[1], label=intesities[1])
-    ax1.plot(time, y3, color_sequence[2], label=intesities[2])
-    ax1.plot([6.0], [28.35], color_sequence[0], marker='o')
-    ax1.plot([6.0], [28.35], color_sequence[1], marker='o')
-    ax1.set_xlabel('Time (min)')
-    ax1.set_ylabel('Volume (mL)')
-
-    plt.legend(loc='upper left')
-    plt.show()
-
-
-def hydroplot2(data):
+def hydroplot(data):
     """
     :param data: see: leach_hydrology.py. Need to ensure data
     data[:, 0] = time
@@ -113,7 +91,7 @@ def hydroplot2(data):
     plt.show()
 
 
-def copperplot(data):
+def metalplot(data, obs_sol_sterile, obs_sol_untreat, title):
     """
     :param data:
      index 0 = time
@@ -149,26 +127,25 @@ def copperplot(data):
             c += 1
 
     """ Lab results """
-    cu_time = np.array([6, 12, 30, 30])  # Minutes
-    cu_sol_sterile = np.array([11.29, 11.63, 306.80, 21.08])
-    cu_sol_untreat = np.array([0.5, 1.405, 37.0, 1])
+    time = np.array([6, 12, 30, 30])  # Minutes
 
-    ax1.plot(cu_time[0], cu_sol_sterile[0], color_sequence[0], marker='s', linestyle='None', label=treat_intes[0])
-    ax1.plot(cu_time[1], cu_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=treat_intes[1])
-    ax1.plot(cu_time[2], cu_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
-    ax1.plot(cu_time[3], cu_sol_sterile[3], color_sequence[2], marker='h', linestyle='None', label=treat_intes[2])
+    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='s', linestyle='None', label=treat_intes[0])
+    ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=treat_intes[1])
+    ax1.plot(time[2], obs_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
+    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='h', linestyle='None', label=treat_intes[2])
 
-    ax1.plot(cu_time[0], cu_sol_untreat[0], color_sequence[0], marker='^', linestyle='None', label=treat_intes[3])
-    ax1.plot(cu_time[1], cu_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=treat_intes[4])
-    ax1.plot(cu_time[2], cu_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
-    ax1.plot(cu_time[3], cu_sol_untreat[3], color_sequence[2], marker='*', linestyle='None', label=treat_intes[5])
+    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='^', linestyle='None', label=treat_intes[3])
+    ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=treat_intes[4])
+    ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
+    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='*', linestyle='None', label=treat_intes[5])
 
     # plt.axis((0, 30, 0, 400))
     # Update the limits using set_xlim and set_ylim
     add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
 
     ax1.set_xlabel('Time (min)')
-    ax1.set_ylabel('Cu (mu.g)')
+    ax1.set_ylabel('mu.g')
+    plt.title(title)
 
     plt.legend(loc='upper left')
     plt.show()
