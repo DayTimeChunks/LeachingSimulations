@@ -8,8 +8,8 @@ from hydroplots import *
 from leach_hydrology import *
 
 """ Contaminant characteristics & conditions """
-Koc_smeto = 185.0 # [ml/g]
-Koc_mexyl = 163.0 # [ml/g]
+Koc_smeto = 185.0  # [ml/g]
+Koc_mexyl = 163.0  # [ml/g]
 
 fom_vine_sterile = 3.53/100.0
 fom_vine_untreat = 2.93/100.0
@@ -32,16 +32,13 @@ Kd_mexyl_vine_sterile = Koc_mexyl*foc_vine_sterile  # ml/g
 Kd_mexyl_vine_untreat = Koc_mexyl*foc_vine_untreat  # ml/g
 
 # Copper log(Kd) range: 0.1 - 7.0, max-mean = 5.5
-Kd_copper_min = 10**2.7  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
-Kd_copper_max = 10**3.6  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
+Kd_copper_sterile = 10**2.7  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
+Kd_copper_untreat = 10**3.6  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
 
 # Zinc log(Kd) range: 1.5 - 6.9
-Kd_zinc_min = 10**2.9  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
-Kd_zinc_max = 10**3.9  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
+Kd_zinc_sterile = 10**2.9  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
+Kd_zinc_untreat = 10**3.9  # [mL/g] = [L/Kg] (Allison and Allison, 2005 - EPA/600/R-05/074)
 
-# Mass leached at 6min, 12min, 30min, 30min @ 135, 55, 55, 30mm/h
-sol_sterile = np.array([11.29, 11.63, 306.80, 21.08])  # [ug]
-sol_untreat = np.array([0.5, 1.405, 37.0, 1])
 
 """ Soil Characteristics """
 pb_vine = 1.04  # bulk density (g/cm^3) # Rouffach (Martine Trautmann, sampled pre-event)
@@ -55,7 +52,7 @@ ov_2 = 0.30   # Initial water content m3. m-3
 ovSat_crop = 0.45  # Saturated water content (assumed)
 ovSat_vine = 0.45  # Saturated water content (assumed)
 psi_crop = 110  # soil suction Alteck [cm]
-# psi_vine = xxxx  # soil suction Rouffach
+psi_vine = 110  # soil suction Rouffach (guess)
 
 """ Microcosm """
 d = (1.493 * 2)  # Diameter of falcon tube (cm)
@@ -97,14 +94,14 @@ hydroplot(data, leach_high_6min, leach_med_12min, leach_med_30min, leach_low_30m
 mass_ini_sterile = (1627 + 1107) / float(2)  # all intensities:{0d, 10d)
 mass_ini_untreated = (1184 + 1177) / float(2)  # all intesities:{0d, 10d)
 
-cum_copper_Alteck = pesti_ret(Kd_copper_min, Kd_copper_max,
+cum_copper_Alteck = pesti_ret(Kd_copper_sterile, Kd_copper_untreat,
                               pb_crop,
                               ovSat_crop,
                               water_data,
                               area, soil_height,
                               mass_ini_sterile, mass_ini_untreated)
 
-# Observed Cupper Output
+# Observed Cupper Output at 6min, 12min, 30min, 30min @ 135, 55, 55, 30mm/h
 cu_sol_sterile = np.array([11.29, 11.63, 306.80, 21.08])
 cu_sol_untreat = np.array([0.5, 1.405, 37.0, 1])
 
@@ -115,7 +112,7 @@ pestiplot(cum_copper_Alteck, cu_sol_sterile, cu_sol_untreat, 'Cumulative Cu - An
 mass_ini_sterile = (3106 + 2594) / float(2)  # all intensities:{0d, 10d)
 mass_ini_untreated = (2636 + 2586) / float(2)
 
-cum_zinc_Alteck = pesti_ret(Kd_zinc_min, Kd_zinc_max,
+cum_zinc_Alteck = pesti_ret(Kd_zinc_sterile, Kd_zinc_untreat,
                             pb_crop,
                             ovSat_crop,
                             water_data,
@@ -130,8 +127,8 @@ pestiplot(cum_zinc_Alteck, zn_sol_sterile, zn_sol_untreat, 'Cumulative Zn - Annu
 
 """ Metalaxyl simulation w Retardation Factor - 1st Pulse, Annual Crop """
 # Initial mass
-mx_ini_sterile = (1818.1+1472.7) / float(2)  # all intensities:{0d, 10d)
-mx_ini_untreated = (1518.1+1413.3) / float(2)  # all intesities:{0d, 10d)
+mx_ini_sterile = (1818.1+1472.7) / float(2)
+mx_ini_untreated = (1518.1+1413.3) / float(2)
 
 cum_mx_crop = pesti_ret(Kd_mexyl_crop_sterile, Kd_mexyl_crop_untreat,
                         pb_crop,
@@ -140,7 +137,7 @@ cum_mx_crop = pesti_ret(Kd_mexyl_crop_sterile, Kd_mexyl_crop_untreat,
                         area, soil_height,
                         mx_ini_sterile, mx_ini_untreated)
 
-# Observed Metalaxyl Output - Vine
+# Observed Metalaxyl Output - Crop
 mx_obs_sterile_crop = np.array([(138.1+207.1)/2.0,
                                 (201.0+50.4)/2.0, (641.8+356.8)/2.0,
                                 (177.0+293.5)/2.0])  # high, med-12, med-30, low
@@ -205,7 +202,7 @@ hydroplot(dataVine, leach_high_6min, leach_med_12min, leach_med_30min, leach_low
 cu_ini_sterile = (3735 + 4008) / float(2)  # all intensities:{0d, 10d)
 cu_ini_untreated = (4011 + 3860) / float(2)  # all intesities:{0d, 10d)
 
-cum_copper_vine = pesti_ret(Kd_copper_min, Kd_copper_max,
+cum_copper_vine = pesti_ret(Kd_copper_sterile, Kd_copper_untreat,
                             pb_vine,
                             ovSat_vine,
                             water_data,
@@ -225,11 +222,11 @@ pestiplot(cum_copper_vine, cu_obs_sterile_vine, cu_obs_untreat_vine, 'Cumulative
 
 """ Zinc simulation w Retardation Factor - 1st Pulse, Vineyard Crop """
 # Initial mass
-zn_ini_sterile = (2811 + 3122) / float(2)  # all intensities:{0d, 10d)
-zn_ini_untreated = (3216 + 3031) / float(2)  # all intesities:{0d, 10d)
+zn_ini_sterile = (2811 + 3122) / float(2)
+zn_ini_untreated = (3216 + 3031) / float(2)
 
 
-cum_zinc_vine = pesti_ret(Kd_copper_min, Kd_copper_max,
+cum_zinc_vine = pesti_ret(Kd_copper_sterile, Kd_copper_untreat,
                           pb_vine,
                           ovSat_vine,
                           water_data,

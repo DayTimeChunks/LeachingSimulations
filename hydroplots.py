@@ -3,12 +3,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def stackdata9(time, l1, l2, l3, l4, l5, l6 , l7, l8, l9):
+def stackdata9(time, l1, l2, l3, l4, l5, l6, l7, l8, l9):
     data = np.column_stack((time, l1, l2, l3, l4, l5, l6, l7, l8, l9))
     return data
 
 
-def stackdata6(time, l1, l2, l3, l4, l5, l6 ):
+def stackdata6(time, l1, l2, l3, l4, l5, l6):
     data = np.column_stack((time, l1, l2, l3, l4, l5, l6))
     return data
 
@@ -43,24 +43,27 @@ def hydroplot(data, leach_high_6min, leach_med_12min, leach_med_30min, leach_low
     """
     sns.set(style="whitegrid")
     intesities = ['Inf. (135 mm/h)', 'Inf. (55 mm/h)', 'Inf. (30 mm/h)',
-                  'Leach (135 mm/h)', 'Leach (55 mm/h)', 'Leach (30 mm/h)']
-    color_sequence = ['#d62728', '#2ca02c', '#1f77b4']
+                  'Leach Vol. (135 mm/h)', 'Leach Vol. (55 mm/h)', 'Leach Vol. (30 mm/h)']
+    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
+                      '#d62728', '#2ca02c', '#1f77b4']
 
     filled_markers = ['d', 'd', 'd',
                       'o', 'o', 'o',
                       # '.', '.', '.',
                       ]
+    line_styles = ['dashed', 'dashed', 'dashed']
 
     fig, ax1 = plt.subplots()
     c = 0
     for i in range(1, len(data[2])):
         if c < 3:
-            ax1.plot(data[:, 0], data[:, i], color_sequence[c], marker=filled_markers[i-1], label=intesities[i-1])
+            # ax1.plot(data[:, 0], data[:, i], color_sequence[c], label=intesities[i-1])
             c += 1
         else:
-            c = 0
-            ax1.plot(data[:, 0], data[:, i], color_sequence[c], marker=filled_markers[i-1], label=intesities[i-1])
+            # c = 0
+            ax1.plot(data[:, 0], data[:, i], color_sequence[c], linestyle='dashed', label=intesities[i-1])
             c += 1
+            # marker=filled_markers[i-1]
 
     # ax1.plot([6.0], [28.35], color_sequence[0], marker='s')
 
@@ -99,13 +102,15 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     treatment = ['Sterile', 'Untreated']
     intesities = ['(135 mm/h)', '(55 mm/h)', '(30 mm/h)']
 
-    treat_intes = ['Sterile (135 mm/h)', 'Sterile (55 mm/h)', 'Sterile (30 mm/h)',
-                   'Untreated (135 mm/h)', 'Untreated (55 mm/h)', 'Untreated (30 mm/h)']
+    treat_intens = ['Sim. Ster. (135 mm/h)', 'Sim. Ster. (55 mm/h)', 'Sim. Ster. (30 mm/h)',
+                   'Sim. Unt. (135 mm/h)', 'Sim. Unt. (55 mm/h)', 'Sim. Unt. (30 mm/h)']
+    obs_intens = ['Obs. Ster. (135 mm/h)', 'Obs. Ster. (55 mm/h)', 'Obs. Ster. (30 mm/h)',
+                   'Obs. Unt. (135 mm/h)', 'Obs. Unt. (55 mm/h)', 'Obs. Unt. (30 mm/h)']
 
     color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
                       '#d62728', '#2ca02c', '#1f77b4']
 
-    filled_markers = ['d', '^', '^', 'o','d', '^', '^', 'o']
+    filled_markers = ['d', '^', '^', 'o', 'd', '^', '^', 'o']
 
     fig, ax1 = plt.subplots()
 
@@ -113,26 +118,26 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     #  index 0 = time
     #  index 1:end =
     c = 0
-    for i in range(1, len(data[0])):
+    for i in range(1, len(data[0][0])):
         if i < 4:
-            ax1.plot(data[:, 0], data[:, i], color_sequence[c], label=treat_intes[i - 1])
+            ax1.plot(data[0][:, 0], data[0][:, i], color_sequence[c], label=treat_intens[i - 1])
             c += 1
         else:
-            ax1.plot(data[:, 0], data[:, i], color_sequence[c], label=treat_intes[i - 1], linestyle='dashed')
+            ax1.plot(data[0][:, 0], data[0][:, i], color_sequence[c], label=treat_intens[i - 1], linestyle='dashed')
             c += 1
 
     """ Lab results """
     time = np.array([6, 12, 30, 30])  # Minutes
 
-    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='s', linestyle='None', label=treat_intes[0])
-    ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=treat_intes[1])
+    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='s', linestyle='None', label=obs_intens[0])
+    ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=obs_intens[1])
     ax1.plot(time[2], obs_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
-    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='h', linestyle='None', label=treat_intes[2])
+    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='h', linestyle='None', label=obs_intens[2])
 
-    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='^', linestyle='None', label=treat_intes[3])
-    ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=treat_intes[4])
+    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='^', linestyle='None', label=obs_intens[3])
+    ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=obs_intens[4])
     ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
-    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='*', linestyle='None', label=treat_intes[5])
+    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='*', linestyle='None', label=obs_intens[5])
 
     # plt.axis((0, 30, 0, 400))
     # Update the limits using set_xlim and set_ylim
@@ -140,6 +145,66 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
 
     ax1.set_xlabel('Time (min)')
     ax1.set_ylabel('mu.g')
+    plt.title(title)
+
+    plt.legend(loc='upper left')
+    plt.show()
+
+
+def pestiplot_inst(data, obs_sol_sterile, obs_sol_untreat, title):
+    """
+    :param data:
+     index 0 = time
+      index 1 to 3 = Sterile, Kd_min
+       index 4 to 6 = Untreated, Kd_max
+    :return: Plot showing cumulative mass discharge
+    """
+    sns.set(style="whitegrid")
+
+    treatment = ['Sterile', 'Untreated']
+    intesities = ['(135 mm/h)', '(55 mm/h)', '(30 mm/h)']
+
+    treat_intes = ['Sim. Ster. (135 mm/h)', 'Sim. Ster. (55 mm/h)', 'Sim. Ster. (30 mm/h)',
+                   'Sim. Unt. (135 mm/h)', 'Sim. Unt. (55 mm/h)', 'Sim. Unt. (30 mm/h)']
+
+    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
+                      '#d62728', '#2ca02c', '#1f77b4']
+
+    filled_markers = ['d', '^', '^', 'o', 'd', '^', '^', 'o']
+
+    fig, ax1 = plt.subplots()
+
+    #  Plot data, which is in numpy array format, with:
+    #  index 0 = time
+    #  index 1:end =
+    c = 0
+    for i in range(1, len(data[1][0])):
+        if i < 4:
+            ax1.plot(data[1][:, 0], data[1][:, i], color_sequence[c], label=treat_intes[i - 1])
+            c += 1
+        else:
+            ax1.plot(data[1][:, 0], data[1][:, i], color_sequence[c], label=treat_intes[i - 1], linestyle='dashed')
+            c += 1
+
+    """ Lab results """
+    time = np.array([6, 12, 30, 30])  # Minutes
+    """
+    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='s', linestyle='None', label='Cum. Ster. (135mm/h)')
+    ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label='Cum. Ster. (55mm/h)')
+    ax1.plot(time[2], obs_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
+    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='h', linestyle='None', label='Cum. Ster. (30mm/h)')
+
+    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='^', linestyle='None', label='Cum. Unt. (135mm/h)')
+    ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label='Cum. Unt. (55mm/h)')
+    ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
+    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='*', linestyle='None', label='Cum. Unt. (30mm/h)')
+    """
+    # plt.axis((0, 30, 0, 400))
+    # Update the limits using set_xlim and set_ylim
+    add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
+
+    ax1.set_xlabel('Time (min)')
+    ax1.set_ylabel('mu.g/dt')
     plt.title(title)
 
     plt.legend(loc='upper left')
