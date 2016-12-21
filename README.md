@@ -14,5 +14,12 @@ A. Download the project to your computer
 
 B. Commit Changes
 
-1. Change directory in the terminal to the cloned directory (i.e. type "cd LeachingSimulations")
-2. In terminal, type: "git remote add upstream" + 
+1. After you've made changes to the files in local directory (i.e. your computer), check the status on your terminal by typing :"git status"
+2. Add the files you edited: "git add <filename>" or to add all files: "git add *"
+3. To actually commit these changes use: " git commit -m "Commit message" ". Now the file is committed to the HEAD, but not in your remote repository yet.
+
+C. Push Changes
+
+1. To send those changes to your remote repository, execute: "git push origin master". Change master to whatever branch you want to push your changes to.
+
+D. For branching see: http://rogerdudler.github.io/git-guide/
