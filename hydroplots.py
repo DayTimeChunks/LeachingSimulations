@@ -129,15 +129,15 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     """ Lab results """
     time = np.array([6, 12, 30, 30])  # Minutes
 
-    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='s', linestyle='None', label=obs_intens[0])
+    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='o', linestyle='None', label=obs_intens[0])
     ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=obs_intens[1])
     ax1.plot(time[2], obs_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
-    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='h', linestyle='None', label=obs_intens[2])
+    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='o', linestyle='None', label=obs_intens[2])
 
-    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='^', linestyle='None', label=obs_intens[3])
+    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='v', linestyle='None', label=obs_intens[3])
     ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=obs_intens[4])
     ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
-    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='*', linestyle='None', label=obs_intens[5])
+    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='v', linestyle='None', label=obs_intens[5])
 
     # plt.axis((0, 30, 0, 400))
     # Update the limits using set_xlim and set_ylim
