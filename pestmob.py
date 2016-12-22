@@ -152,9 +152,10 @@ def pest_test(Kd,  # Kd list range to test
             r_factor = 1 + (pb * Kd[k]) / ov_sat
             #  Start a new intensity scenario
             for i in range(3):
-                conc_soil_old = mass_ini[m] / soil_m
+                mass_tot = mass_ini[m]
+                conc_soil_old = \
+                    ((mass_ini[m] / soil_m)*pb*Kd[k])/(ov_sat + pb*Kd[k])  # Whelan et al. 1987 (p4.9)
                 conc_liq_old = conc_soil_old / Kd[k]
-                mass_old = conc_soil_old * soil_m
                 cum_mass_out = 0
                 mass_out_dt = []
                 cum_mass_out_dt = []
@@ -163,25 +164,29 @@ def pest_test(Kd,  # Kd list range to test
                     # McGrath leaching:
                     conc_liq_new = conc_liq_old * exp(-(leached_vol[i][t]) / (r_factor * vol_h2o_sat))
                     mass_out = (conc_liq_old - conc_liq_new) * vol_h2o_sat
-                    # re-equilibrate
-                    mass_new = mass_old - mass_out
-                    conc_soil_old = mass_new / soil_m
-                    conc_liq_old = conc_soil_old / Kd[k]
                     cum_mass_out += mass_out
                     mass_out_dt.append(mass_out)
                     cum_mass_out_dt.append(cum_mass_out)
-                    mass_old = mass_new
+                    # re-equilibrate
+                    mass_tot_new = mass_tot - mass_out
+                    conc_soil_old = ((mass_tot_new / soil_m)*pb*Kd[k])/(ov_sat + pb*Kd[k])
+                    conc_liq_old = conc_soil_old / Kd[k]
+                    mass_tot = mass_tot_new
 
                 # Calculate error of intensity i, @ (kd, m)
                 if i == 0 and m == 0:
                     highint_error6_st = (cum_mass_out_dt[23] - pest_sol[m][i]) ** 2
                     temp_cum_out_high_st = cum_mass_out_dt
                     temp_out_high_st = mass_out_dt
+                    # print("Mass balance for intensity ", i + 1, "and Kd: ", Kd[k], "is ",
+                    #      abs(mass_ini[m] - mass_tot - cum_mass_out_dt[-1]) < 1*10**-6)
                 elif i == 1 and m == 0:
                     medint_error12_st = (cum_mass_out_dt[47] - pest_sol[m][i]) ** 2
                     medint_error30_st = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
                     temp_cum_out_med_st = cum_mass_out_dt
                     temp_out_med_st = mass_out_dt
+                    # print("Mass balance for intensity ", i + 1, "and Kd: ", Kd[k], "is ",
+                    #      abs(mass_ini[m] - mass_tot - cum_mass_out_dt[-1]) < 1 * 10 ** -6)
                 elif i == 2 and m == 0:
                     lowint_error30_st = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
                     temp_cum_out_low_st = cum_mass_out_dt
@@ -250,3 +255,5 @@ def pest_test(Kd,  # Kd list range to test
             stackdata6(cum_time_30min,
                        highint_mass_st_out_dt, medint_mass_st_out_dt, lowint_mass_st_out_dt,
                        highint_mass_un_out_dt, medint_mass_un_out_dt, lowint_mass_un_out_dt)]
+
+
