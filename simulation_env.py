@@ -117,6 +117,18 @@ cum_copper_Alteck = pest_test(Kd_copper,
 
 pestiplot(cum_copper_Alteck, cu_sol_sterile, cu_sol_untreat, 'Cumulative Cu - Annual Crop Soil')
 
+
+cum_copper_Alteck = freundlich(Kd_copper, 0.87,
+                              pb_crop,
+                              ovSat_crop,
+                              water_data,
+                              area, soil_height,
+                              mass_ini,
+                              cu_sol)
+
+pestiplot(cum_copper_Alteck, cu_sol_sterile, cu_sol_untreat, 'Cumulative Cu - Annual Crop Soil, Freundlich')
+
+
 """
 ################
 # Zinc simulation w Retardation Factor - 1st Pulse
