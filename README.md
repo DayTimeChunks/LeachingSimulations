@@ -22,4 +22,12 @@ C. Push Changes
 
 1. To send those changes to your remote repository, execute: "git push origin master". Change master to whatever branch you want to push your changes to.
 
-D. For branching see: http://rogerdudler.github.io/git-guide/
+D. Branching
+
+1. Make new branch locally: git checkout -b new_branch_name
+2. Switch back to master: git checkout master
+
+3. Delete the branch locally: git branch -d new_branch_name
+4. Delete the branch remotely: git push origin --delete new_branch_name
+or:
+5. Make it available remotely: git push origin new_branch_name
