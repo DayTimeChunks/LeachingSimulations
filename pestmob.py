@@ -175,13 +175,13 @@ def pest_test(Kd,  # Kd list range to test
 
                 # Calculate error of intensity i, @ (kd, m)
                 if i == 0 and m == 0:
-                    highint_error6_st = (cum_mass_out_dt[23] - pest_sol[m][i]) ** 2
+                    highint_error6_st = (cum_mass_out_dt[5] - pest_sol[m][i]) ** 2
                     temp_cum_out_high_st = cum_mass_out_dt
                     temp_out_high_st = mass_out_dt
                     # print("Mass balance for intensity ", i + 1, "and Kd: ", Kd[k], "is ",
                     #      abs(mass_ini[m] - mass_tot - cum_mass_out_dt[-1]) < 1*10**-6)
                 elif i == 1 and m == 0:
-                    medint_error12_st = (cum_mass_out_dt[47] - pest_sol[m][i]) ** 2
+                    medint_error12_st = (cum_mass_out_dt[11] - pest_sol[m][i]) ** 2
                     medint_error30_st = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
                     temp_cum_out_med_st = cum_mass_out_dt
                     temp_out_med_st = mass_out_dt
@@ -192,11 +192,11 @@ def pest_test(Kd,  # Kd list range to test
                     temp_cum_out_low_st = cum_mass_out_dt
                     temp_out_low_st = mass_out_dt
                 elif i == 0 and m == 1:
-                    highint_error6_un = (cum_mass_out_dt[23] - pest_sol[m][i]) ** 2
+                    highint_error6_un = (cum_mass_out_dt[5] - pest_sol[m][i]) ** 2
                     temp_cum_out_high_un = cum_mass_out_dt
                     temp_out_high_un = mass_out_dt
                 elif i == 1 and m == 1:
-                    medint_error12_un = (cum_mass_out_dt[47] - pest_sol[m][i]) ** 2
+                    medint_error12_un = (cum_mass_out_dt[11] - pest_sol[m][i]) ** 2
                     medint_error30_un = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
                     temp_cum_out_med_un = cum_mass_out_dt
                     temp_out_med_un = mass_out_dt
@@ -326,13 +326,13 @@ def freundlich(Kd, a, # Kd list range to test
 
                 # Calculate error of intensity i, @ (kd, m)
                 if i == 0 and m == 0:
-                    highint_error6_st = (cum_mass_out_dt[23] - pest_sol[m][i]) ** 2
+                    highint_error6_st = (cum_mass_out_dt[5] - pest_sol[m][i]) ** 2
                     temp_cum_out_high_st = cum_mass_out_dt
                     temp_out_high_st = mass_out_dt
                     # print("Mass balance for intensity ", i + 1, "and Kd: ", Kd[k], "is ",
                     #      abs(mass_ini[m] - mass_tot - cum_mass_out_dt[-1]) < 1*10**-6)
                 elif i == 1 and m == 0:
-                    medint_error12_st = (cum_mass_out_dt[47] - pest_sol[m][i]) ** 2
+                    medint_error12_st = (cum_mass_out_dt[11] - pest_sol[m][i]) ** 2
                     medint_error30_st = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
                     temp_cum_out_med_st = cum_mass_out_dt
                     temp_out_med_st = mass_out_dt
@@ -343,11 +343,11 @@ def freundlich(Kd, a, # Kd list range to test
                     temp_cum_out_low_st = cum_mass_out_dt
                     temp_out_low_st = mass_out_dt
                 elif i == 0 and m == 1:
-                    highint_error6_un = (cum_mass_out_dt[23] - pest_sol[m][i]) ** 2
+                    highint_error6_un = (cum_mass_out_dt[5] - pest_sol[m][i]) ** 2
                     temp_cum_out_high_un = cum_mass_out_dt
                     temp_out_high_un = mass_out_dt
                 elif i == 1 and m == 1:
-                    medint_error12_un = (cum_mass_out_dt[47] - pest_sol[m][i]) ** 2
+                    medint_error12_un = (cum_mass_out_dt[11] - pest_sol[m][i]) ** 2
                     medint_error30_un = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
                     temp_cum_out_med_un = cum_mass_out_dt
                     temp_out_med_un = mass_out_dt

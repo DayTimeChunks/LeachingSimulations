@@ -3,6 +3,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+def stackdata15(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o))
+    return data
+
+
 def stackdata9(time, l1, l2, l3, l4, l5, l6, l7, l8, l9):
     data = np.column_stack((time, l1, l2, l3, l4, l5, l6, l7, l8, l9))
     return data
@@ -10,6 +19,11 @@ def stackdata9(time, l1, l2, l3, l4, l5, l6, l7, l8, l9):
 
 def stackdata6(time, l1, l2, l3, l4, l5, l6):
     data = np.column_stack((time, l1, l2, l3, l4, l5, l6))
+    return data
+
+
+def stackdata3(time, a, b, c):
+    data = np.column_stack((time, a, b, c))
     return data
 
 
@@ -27,7 +41,10 @@ def add_margin(ax, x=0.05, y=0.05):
     ax.set_ylim(ylim[0]-ymargin, ylim[1]+ymargin)
 
 
-def hydroplot(data, leach_high_6min, leach_med_12min, leach_med_30min, leach_low_30min):
+def hydroplot(data,
+              y1, y2, y3,
+              leach_high_6min, leach_med_12min, leach_med_30min, leach_low_30min,
+              ):
     """
     :param data: see: leach_hydrology.py. Need to ensure data
     data[:, 0] = time
@@ -42,6 +59,8 @@ def hydroplot(data, leach_high_6min, leach_med_12min, leach_med_30min, leach_low
     Plot with cumu. inf. and cum. leached volumes [mL]
     """
     sns.set(style="whitegrid")
+
+    y_var = [y1, y2, y3]
     intesities = ['Inf. (135 mm/h)', 'Inf. (55 mm/h)', 'Inf. (30 mm/h)',
                   'Leach Vol. (135 mm/h)', 'Leach Vol. (55 mm/h)', 'Leach Vol. (30 mm/h)']
     color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
@@ -56,16 +75,10 @@ def hydroplot(data, leach_high_6min, leach_med_12min, leach_med_30min, leach_low
     fig, ax1 = plt.subplots()
     c = 0
     for i in range(1, len(data[2])):
-        if c < 3:
-            # ax1.plot(data[:, 0], data[:, i], color_sequence[c], label=intesities[i-1])
-            c += 1
-        else:
-            # c = 0
-            ax1.plot(data[:, 0], data[:, i], color_sequence[c], linestyle='dashed', label=intesities[i-1])
-            c += 1
-            # marker=filled_markers[i-1]
-
-    # ax1.plot([6.0], [28.35], color_sequence[0], marker='s')
+        # Print three y-variables (for each intensity)
+        ax1.plot(data[:, 0], data[:, i], color_sequence[c], linestyle='dashed', label=y_var[i-1])
+        #ax1.errorbar(x, y, yerr=yerr, fmt='o')
+        c += 1
 
     """ Lab results """
     # Minutes
