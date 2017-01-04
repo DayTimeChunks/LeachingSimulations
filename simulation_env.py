@@ -64,6 +64,7 @@ water_data = leachsim(ovSat=ovSat_crop,
                       kSat=kSat_crop,
                       psi=psi_crop)
 
+
 cum_time_30min = water_data[:, 0]
 cum_inf_135mmh = water_data[:, 4]
 cum_inf_55mmh = water_data[:, 5]
@@ -116,6 +117,18 @@ cum_copper_Alteck = pest_test(Kd_copper,
                               cu_sol)
 
 pestiplot(cum_copper_Alteck, cu_sol_sterile, cu_sol_untreat, 'Cumulative Cu - Annual Crop Soil')
+
+
+cum_copper_Alteck = freundlich(Kd_copper, 0.87,
+                              pb_crop,
+                              ovSat_crop,
+                              water_data,
+                              area, soil_height,
+                              mass_ini,
+                              cu_sol)
+
+pestiplot(cum_copper_Alteck, cu_sol_sterile, cu_sol_untreat, 'Cumulative Cu - Annual Crop Soil, Freundlich')
+
 
 """
 ################
