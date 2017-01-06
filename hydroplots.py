@@ -1,6 +1,18 @@
+
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
+sns.set_context(rc={'lines.markeredgewidth': 0.1})
+
+
+def stackdata18(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o,
+                p, q, r):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r))
+    return data
 
 
 def stackdata15(time,
@@ -61,10 +73,9 @@ def hydroplot(data,
     sns.set(style="whitegrid")
 
     y_var = [y1, y2, y3]
-    intesities = ['Inf. (135 mm/h)', 'Inf. (55 mm/h)', 'Inf. (30 mm/h)',
-                  'Leach Vol. (135 mm/h)', 'Leach Vol. (55 mm/h)', 'Leach Vol. (30 mm/h)']
-    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
-                      '#d62728', '#2ca02c', '#1f77b4']
+
+    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',  # red, green, blue
+                      '#d62728', '#2ca02c', '#1f77b4']  # red, green, blue
 
     filled_markers = ['d', 'd', 'd',
                       'o', 'o', 'o',
@@ -72,6 +83,7 @@ def hydroplot(data,
                       ]
     line_styles = ['dashed', 'dashed', 'dashed']
 
+    """
     fig, ax1 = plt.subplots()
     c = 0
     for i in range(1, len(data[2])):
@@ -79,26 +91,56 @@ def hydroplot(data,
         ax1.plot(data[:, 0], data[:, i], color_sequence[c], linestyle='dashed', label=y_var[i-1])
         #ax1.errorbar(x, y, yerr=yerr, fmt='o')
         c += 1
+    """
+    fig, ax1 = plt.subplots()
+    ax1.plot(data[:, 0], data[:, 1], color_sequence[0], linestyle='dashed', label=y_var[1 - 1])
+    ax1.plot(data[:, 0], data[:, 2], color_sequence[1], linestyle='dashed', label=y_var[2 - 1])
+    ax1.plot(data[:, 0], data[:, 3], color_sequence[2], linestyle='dashed', label=y_var[3 - 1])
 
     """ Lab results """
+
+    soil_modal = ['Sterile', 'Untreated',
+                  'Ster. Aged', 'Untr. Aged']
     # Minutes
-    six = np.array([6, 6, 6, 6])
-    twelve = np.array([12, 12, 12, 12])
-    thirty = np.array([30, 30, 30, 30])
+    # [sterile, untreat, sterile_aged, untreat_aged]
+    six1 = np.array([5.8])
+    six = np.array([6.1])
 
-    ax1.plot(six, leach_high_6min, color='k', marker='s', linestyle='None')
-    ax1.plot(twelve, leach_med_12min, color='k', marker='^', linestyle='None')
-    ax1.plot(thirty, leach_med_30min, color='k', marker='^', linestyle='None')
-    ax1.plot(thirty, leach_low_30min, color='k', marker='8', linestyle='None')
+    twelve1 = np.array([11.8])
+    twelve = np.array([12.1])
 
-    # plt.axis((0, 30.1, 0, 160))
+    thirty1 = np.array([29.8])
+    thirty = np.array([30])
+
+    ax1.plot(six, leach_high_6min[0], color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six, leach_high_6min[1], color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(six1, leach_high_6min[2], color='#d62728', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(six1, leach_high_6min[3], color='#d62728', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(twelve, leach_med_12min[0], color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve, leach_med_12min[1], color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(twelve1, leach_med_12min[2], color='#2ca02c', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(twelve1, leach_med_12min[3], color='#2ca02c', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(thirty, leach_med_30min[0], color='#2ca02c', marker='v', linestyle='None')
+    ax1.plot(thirty1, leach_med_30min[1], color='#2ca02c', marker='o', linestyle='None')
+    ax1.plot(thirty, leach_med_30min[2], color='#2ca02c', marker='^', linestyle='None')
+    ax1.plot(thirty1, leach_med_30min[3], color='#2ca02c', marker='s', linestyle='None')
+
+    ax1.plot(thirty, leach_low_30min[0], color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, leach_low_30min[1], color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(thirty, leach_low_30min[2], color='#1f77b4', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(thirty1, leach_low_30min[3], color='#1f77b4', marker='s', linestyle='None', label=soil_modal[3])
 
     add_margin(ax1, x=0.01, y=0.01)
 
     ax1.set_xlabel('Time (min)')
     ax1.set_ylabel('Volume (mL)')
 
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper left', fancybox=True, framealpha=0.7)
+    # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+    # plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    # fig.subplots_adjust(right=0.7)
     plt.show()
 
 

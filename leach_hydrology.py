@@ -100,22 +100,21 @@ def leachsim(dtGA = 1,  # Timestep in minute
         # Store hydro. variables  for intesity: 135 mm/h
         if loop == 1:
             cum_time_6min = cum_time_dt
-            print("cum time 6 min: ", cum_time_6min[5])
-            print("cum time 12 min: ", cum_time_6min[11])
-            print("cum time end: ", cum_time_6min[-1])
-            print("cum precip (3 systems): ", cum_precip_dt[-1])
+            # print("cum time 6 min: ", cum_time_6min[5])
+            # print("cum time 12 min: ", cum_time_6min[11])
+            # print("cum time end: ", cum_time_6min[-1])
+            # print("cum precip (3 systems): ", cum_precip_dt[-1])
             cum_precip_6min = cum_precip_dt
             cum_runoff_6min = cum_runoff_dt
             cum_leach_6min = cum_leach_dt
             cum_inf_6min = cum_inf_dt
             runoff_6min = runoff_dt
-            print("cum runoff end: ", cum_runoff_dt[-1])
-
+            # print("cum runoff end: ", cum_runoff_dt[-1])
             infil_6min = infil_dt
-            print("cum inf. end: ", cum_inf_dt[-1])
+            # print("cum inf. end: ", cum_inf_dt[-1])
 
             leach_6min = leach_dt
-            print("cum leach end: ", cum_leach_dt[-1])
+            # print("cum leach end: ", cum_leach_dt[-1])
             mass_bal = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
             print("Mass balance", mass_bal)
 
@@ -129,6 +128,8 @@ def leachsim(dtGA = 1,  # Timestep in minute
             runoff_12min = runoff_dt
             infil_12min = infil_dt
             leach_12min = leach_dt
+            mass_bal = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
+            print("Mass balance", mass_bal)
 
         # Store hydro. variables  for intesity: 30 mm/h
         elif loop == 3:
@@ -140,13 +141,16 @@ def leachsim(dtGA = 1,  # Timestep in minute
             runoff_30min = runoff_dt
             infil_30min = infil_dt
             leach_30min = leach_dt
+            mass_bal = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
+            print("Mass balance", mass_bal)
 
         else:
             print("Do you have more than 3 rainfall scenarios?")
 
-    return stackdata15(cum_time_30min,
+    return stackdata18(cum_time_30min,
                        leach_6min, leach_12min, leach_30min,
                        cum_inf_6min, cum_inf_12min, cum_inf_30min,
                        cum_leach_6min, cum_leach_12min, cum_leach_30min,
                        runoff_6min, runoff_12min, runoff_30min,
-                       cum_runoff_6min, cum_runoff_12min, cum_runoff_30min)
+                       cum_runoff_6min, cum_runoff_12min, cum_runoff_30min,
+                       infil_6min, infil_12min, infil_30min)

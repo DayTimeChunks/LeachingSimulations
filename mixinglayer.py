@@ -1,21 +1,21 @@
 """ Mixing layer Model - K_L parameters & Reynolds (Shi et al., 2011, p.1220)"""
 
 """ Global parameters"""
-V_k = 1.004e-6 * 10 ** 4  # (cm2/s) # kinematic water viscosity at 20 deg. Celsius = 1.004 x 10-6 (m2/s)
-D_w = 5.09677e-06 * 60  # cm2/min -> Metolachlor = 5.0967719112e-006 (cm2 / s)
-Sc = V_k / (D_w / 60)  # (-)
+V_k = 1.004e-6 * 10 ** 6 * 60  # (mm2/min) # kinematic water viscosity at 20 deg. Celsius = 1.004 x 10-6 (m2/s)
+D_w = 5.09677e-06 * 60 * 10**2  # mm2/min solute diff usivity in water -> Metolachlor = 5.0967719112e-006 (cm2 / s)
+Sc = V_k / (D_w / 60)  # (-) Schmidt number
 
 
-def reynolds(runoffvelocity, diameter, v_k=1.004e-6 * 10 ** 4):
+def reynolds(runoffvelocity, diameter, v_k=V_k):
     """ Overall Reynolds Number """
-    re = ((runoffvelocity / 60) * diameter) / v_k  # (-)
-    return re
-    # intensityM = rainfall intensity (P: cm/min)
-    # diameter = Length (L: cm)
+    re = (runoffvelocity * diameter) / v_k  # [-]
+    return re  # (dimensionless)
+    # intensityM = rainfall intensity (P: mm/min)
+    # diameter = Length (L: mm)
 
 
 def kfilm(diameter, runoffvelocity):
-    kl = 0.664 * (D_w/diameter)*reynolds(runoffvelocity, diameter)**(float(1)/2)*Sc**(float(1)/3)  # cm/min
+    kl = 0.664 * (D_w/diameter)*reynolds(runoffvelocity, diameter)**(float(1)/2)*Sc**(float(1)/3)  # mm/min
     return kl
 
 """
