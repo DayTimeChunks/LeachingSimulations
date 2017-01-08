@@ -56,7 +56,7 @@ def add_margin(ax, x=0.05, y=0.05):
 def hydroplot(data,
               y1, y2, y3,
               leach_high_6min, leach_med_12min, leach_med_30min, leach_low_30min,
-              ):
+              title):
     """
     :param data: see: leach_hydrology.py. Need to ensure data
     data[:, 0] = time
@@ -92,10 +92,11 @@ def hydroplot(data,
         #ax1.errorbar(x, y, yerr=yerr, fmt='o')
         c += 1
     """
+    # Convert from mm3 to cm3 all volume hydro data.
     fig, ax1 = plt.subplots()
-    ax1.plot(data[:, 0], data[:, 1], color_sequence[0], linestyle='dashed', label=y_var[1 - 1])
-    ax1.plot(data[:, 0], data[:, 2], color_sequence[1], linestyle='dashed', label=y_var[2 - 1])
-    ax1.plot(data[:, 0], data[:, 3], color_sequence[2], linestyle='dashed', label=y_var[3 - 1])
+    ax1.plot(data[:, 0], data[:, 1]/10**3, color_sequence[0], linestyle='dashed', label=y_var[1 - 1])
+    ax1.plot(data[:, 0], data[:, 2]/10**3, color_sequence[1], linestyle='dashed', label=y_var[2 - 1])
+    ax1.plot(data[:, 0], data[:, 3]/10**3, color_sequence[2], linestyle='dashed', label=y_var[3 - 1])
 
     """ Lab results """
 
@@ -141,16 +142,17 @@ def hydroplot(data,
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=3, mode="expand", borderaxespad=0.)
     # plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     # fig.subplots_adjust(right=0.7)
+    plt.title(title)
     plt.show()
 
 
 def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     """
-    :param data:
+    :param data: length 7, where:
      index 0 = time
       index 1 to 3 = Sterile, Kd_min
        index 4 to 6 = Untreated, Kd_max
-    :return: Plot showing cumulative mass discharge
+    :return: Plot showing mass output (2 curves per soil)
     """
     sns.set(style="whitegrid")
 
@@ -170,15 +172,13 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     fig, ax1 = plt.subplots()
 
     #  Plot data, which is in numpy array format, with:
-    #  index 0 = time
-    #  index 1:end =
     c = 0
-    for i in range(1, len(data[0][0])):
+    for i in range(1, len(data[0])):
         if i < 4:
-            ax1.plot(data[0][:, 0], data[0][:, i], color_sequence[c], label=treat_intens[i - 1])
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1])
             c += 1
         else:
-            ax1.plot(data[0][:, 0], data[0][:, i], color_sequence[c], label=treat_intens[i - 1], linestyle='dashed')
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1], linestyle='dashed')
             c += 1
 
     """ Lab results """

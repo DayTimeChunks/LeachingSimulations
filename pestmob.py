@@ -117,39 +117,63 @@ def pest_test(Kd,  # Kd list range to test
               mass_ini,
               pest_sol,
               d, runoffvelocity, dtGA):
+    """
+    :param Kd: ensure units are mm3/g
+    :param pb: ensure units are g/mm3
+    :param ov_sat:
+    :param percol_data:
+    :param pond_data:
+    :param infil_data:
+    :param area:
+    :param soil_height:
+    :param mass_ini:
+    :param pest_sol:
+    :param d:
+    :param runoffvelocity:
+    :param dtGA:
+    :return:
+    """
 
-    """
-    Water data: leaching, 1st pulse
-    """
-    vol_h2o_sat = area * soil_height * ov_sat
+    # Leaching, ponding and infiltration in vol (cm3)
+    # are stored as lists to iterate through
+
+    soil_m = 54.047  # [g] Average soil mass used in the experiment.
+
+    vol_h2o_sat = area * soil_height * ov_sat  # mm3
     cum_time_30min = pond_data[:, 0]
+
     leach_6min = percol_data[:, 1]  # leached volume per timestep @ high intensity
     leach_12min = percol_data[:, 2]
     leach_30min = percol_data[:, 3]
     leached_vol = [leach_6min, leach_12min, leach_30min]
+
     pond_6min = pond_data[:, 1]  # ponded volume per timestep @ high intensity
     pond_12min = pond_data[:, 2]
     pond_30min = pond_data[:, 3]
     ponded_vol = [pond_6min, pond_12min, pond_30min]
-    soil_m = 54.047  # [g]
+
+    infil_6min = infil_data[:, 1]  # infil. volume per timestep @ high intensity
+    infil_12min = infil_data[:, 2]
+    infil_30min = infil_data[:, 3]
+    infil_vol = [infil_6min, infil_12min, infil_30min]  # cm3
 
     """ Cummualtive Output series """
-    highint_cum_mass_st_out_dt = [0.0] * 119
-    medint_cum_mass_st_out_dt = [0.0] * 119
-    lowint_cum_mass_st_out_dt = [0.0] * 119
+    highint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    medint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    lowint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
 
-    highint_cum_mass_un_out_dt = [0.0] * 119
-    medint_cum_mass_un_out_dt = [0.0] * 119
-    lowint_cum_mass_un_out_dt = [0.0] * 119
+    highint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    medint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    lowint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
 
     """ Output series """
-    highint_mass_st_out_dt = [0.0] * 119
-    medint_mass_st_out_dt = [0.0] * 119
-    lowint_mass_st_out_dt = [0.0] * 119
+    highint_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    medint_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    lowint_mass_st_out_dt = [0.0] * len(cum_time_30min)
 
-    highint_mass_un_out_dt = [0.0] * 119
-    medint_mass_un_out_dt = [0.0] * 119
-    lowint_mass_un_out_dt = [0.0] * 119
+    highint_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    medint_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    lowint_mass_un_out_dt = [0.0] * len(cum_time_30min)
 
     for m in range(len(mass_ini)):  # for each initial mass (sterile & untreat)
         error = 10**9
@@ -157,14 +181,14 @@ def pest_test(Kd,  # Kd list range to test
         for k in range(len(Kd)):
             r_factor = 1 + (pb * Kd[k]) / ov_sat
 
-            K_L = kfilm(d, runoffvelocity)
+            K_L = kfilm(d, runoffvelocity)  # mm/min
             #  Start a new intensity scenario
             for i in range(3):
                 mass_tot = mass_ini[m]
                 # Whelan et al. 1987 (p4.9)
                 conc_soil_old = \
-                    ((mass_ini[m] / soil_m)*pb*Kd[k])/(ov_sat + pb*Kd[k])
-                conc_liq_old = conc_soil_old / Kd[k]
+                    ((mass_ini[m] / soil_m)*pb*Kd[k])/(ov_sat + pb*Kd[k])  # ug/g
+                conc_liq_old = conc_soil_old / Kd[k]  # ug/mm3
 
                 # Leaching
                 cum_mass_out = 0
@@ -191,14 +215,19 @@ def pest_test(Kd,  # Kd list range to test
                         # Mixing layer model from Havis (1986) and Havis et al. (1992)
                         # Kfilm equation from Bennett and Myers, 1982; in Shi et al., 2011, p.1220)
                         mass_transfered_overflow = K_L * (conc_liq_new-conc_in_overflow) * area * dtGA
+                        if mass_transfered_overflow < 0:
+                            print ("mass -> pond: ", mass_transfered_overflow, "at: ", t)
+                            print ("conc liq: ", conc_liq_new)
+                            print ("conc in of : ", conc_in_overflow)
                         # mm/min * ug/mL * mm2/10**3 * dt = [ug]
                         mass_in_overflow += mass_transfered_overflow
                         conc_in_overflow = mass_in_overflow/ponded_vol[i][t]
                         conc_liq_new -= mass_transfered_overflow/vol_h2o_sat
-                        conc_liq_new += conc_in_overflow*infil_data[i][t]/vol_h2o_sat
-                        mass_in_overflow -= conc_in_overflow*infil_data[i][t]
-                        if mass_in_overflow < 0:
-                            print("Error in mixing layer approach, mass is negative")
+                        # conc_liq_new += conc_in_overflow*infil_vol[i][t]/vol_h2o_sat
+                        # mass_in_overflow -= conc_in_overflow*infil_vol[i][t]
+
+#                        if mass_in_overflow < 0:
+#                            print("Error in mixing layer approach, mass is negative")
 
                     # Store the temporal mass in overflow
                     mass_overflow_dt.append(mass_in_overflow)
@@ -298,15 +327,14 @@ def pest_test(Kd,  # Kd list range to test
           "Error: ", error_st)
     print("Best log Kd (untreat): ", log10(kd_untreat), "( Num: ", num_un+1, ")", "\n",
           "Error: ", error_un)
-    return [stackdata6(cum_time_30min,
+
+    return stackdata18(cum_time_30min,
                        highint_cum_mass_st_out_dt, medint_cum_mass_st_out_dt, lowint_cum_mass_st_out_dt,
-                       highint_cum_mass_un_out_dt, medint_cum_mass_un_out_dt, lowint_cum_mass_un_out_dt),
-            stackdata6(cum_time_30min,
+                       highint_cum_mass_un_out_dt, medint_cum_mass_un_out_dt, lowint_cum_mass_un_out_dt,
                        highint_mass_st_out_dt, medint_mass_st_out_dt, lowint_mass_st_out_dt,
-                       highint_mass_un_out_dt, medint_mass_un_out_dt, lowint_mass_un_out_dt),
-            stackdata6(cum_time_30min,
+                       highint_mass_un_out_dt, medint_mass_un_out_dt, lowint_mass_un_out_dt,
                        highint_overmass_st_dt, medint_overmass_st_dt, lowint_overmass_st_dt,
-                       highint_overmass_un_dt, medint_overmass_un_dt, lowint_overmass_un_dt)]
+                       highint_overmass_un_dt, medint_overmass_un_dt, lowint_overmass_un_dt)
 
 
 def freundlich(Kd, a, # Kd list range to test
@@ -329,22 +357,22 @@ def freundlich(Kd, a, # Kd list range to test
     soil_m = 54.047  # [g]
 
     """ Cummualtive Output series """
-    highint_cum_mass_st_out_dt = [0.0] * 119
-    medint_cum_mass_st_out_dt = [0.0] * 119
-    lowint_cum_mass_st_out_dt = [0.0] * 119
+    highint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    medint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    lowint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
 
-    highint_cum_mass_un_out_dt = [0.0] * 119
-    medint_cum_mass_un_out_dt = [0.0] * 119
-    lowint_cum_mass_un_out_dt = [0.0] * 119
+    highint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    medint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    lowint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
 
     """ Output series """
-    highint_mass_st_out_dt = [0.0] * 119
-    medint_mass_st_out_dt = [0.0] * 119
-    lowint_mass_st_out_dt = [0.0] * 119
+    highint_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    medint_mass_st_out_dt = [0.0] * len(cum_time_30min)
+    lowint_mass_st_out_dt = [0.0] * len(cum_time_30min)
 
-    highint_mass_un_out_dt = [0.0] * 119
-    medint_mass_un_out_dt = [0.0] * 119
-    lowint_mass_un_out_dt = [0.0] * 119
+    highint_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    medint_mass_un_out_dt = [0.0] * len(cum_time_30min)
+    lowint_mass_un_out_dt = [0.0] * len(cum_time_30min)
 
     for m in range(len(mass_ini)):  # for each initial mass (sterile & untreat)
         error = 10**9

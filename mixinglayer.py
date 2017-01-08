@@ -16,7 +16,7 @@ def reynolds(runoffvelocity, diameter, v_k=V_k):
 
 def kfilm(diameter, runoffvelocity):
     kl = 0.664 * (D_w/diameter)*reynolds(runoffvelocity, diameter)**(float(1)/2)*Sc**(float(1)/3)  # mm/min
-    return kl
+    return kl  # mm/min
 
 """
 Kinematic Viscosity (to calculate reynolds overall number (Re_L) -

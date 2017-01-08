@@ -71,30 +71,30 @@ def leachsim(dtGA = 1,  # Timestep in minute
             leach = green_output[3]
 
             # Instantaneous time series
-            infil_vol = (inf * area * numSystems)/10**3
+            infil_vol = (inf * area * numSystems)  # mm3
             infil_dt.append(infil_vol)
 
-            runoff_vol = (runoff * area * numSystems)/10**3
+            runoff_vol = (runoff * area * numSystems)
             runoff_dt.append(runoff_vol)
 
-            leached_vol = (leach * area * numSystems)/10**3
+            leached_vol = (leach * area * numSystems)
             leach_dt.append(leached_vol)
 
             # Cummulative time series
             cum_time_dt.append(cum_time)
 
-            precip_vol = (cum_precip * area * numSystems)/10**3
+            precip_vol = (cum_precip * area * numSystems)  # mm3
             cum_precip_dt.append(precip_vol)
 
-            cum_inf_vol = (cum_inf * area * numSystems)/10**3
+            cum_inf_vol = (cum_inf * area * numSystems)
             cum_inf_dt.append(cum_inf_vol)
 
             cum_runoff += runoff
-            cum_runoff_vol = (cum_runoff * area * numSystems)/10**3
+            cum_runoff_vol = (cum_runoff * area * numSystems)
             cum_runoff_dt.append(cum_runoff_vol)
 
             cum_leach += leach
-            cum_leach_vol = (cum_leach * area * numSystems)/10**3
+            cum_leach_vol = (cum_leach * area * numSystems)
             cum_leach_dt.append(cum_leach_vol)
 
         # Store hydro. variables  for intesity: 135 mm/h
@@ -147,6 +147,7 @@ def leachsim(dtGA = 1,  # Timestep in minute
         else:
             print("Do you have more than 3 rainfall scenarios?")
 
+    # Data in cm3 (i.e. mL)
     return stackdata18(cum_time_30min,
                        leach_6min, leach_12min, leach_30min,
                        cum_inf_6min, cum_inf_12min, cum_inf_30min,

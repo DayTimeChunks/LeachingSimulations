@@ -14,7 +14,7 @@ ovSat = 0.45  # Saturated water content (assumed)
 ov_1 = 0.25   # Initial water content m3. m-3
 ov_2 = 0.40   # Initial water content m3. m-3
 ovSat_crop = 0.45  # Saturated water content (assumed)
-psi_crop = 1100  # soil suction Alteck cm
+psi_crop = 1100  # soil suction Alteck mm
 #  (Lefrancq, 2014: 61.7 cm , p.160; 110 cm, p.189)
 
 """
@@ -26,14 +26,14 @@ water_data1 = leachsim(dtGA=1,
                        soil_height=30)
 
 """
-water_data2 = leachsim(dtGA = 1,
+water_data2 = leachsim(dtGA=1,
                        ov=ov_2,
                        ovSat=ovSat_crop,
                        kSat=kSat_crop2,
                        psi=psi_crop,
-                       soil_height=2.3)
+                       soil_height=23)
 
-
+# Convert volumes from mm3 to mL in hydroplot function
 cum_time_30min = water_data2[:, 0]
 cum_inf_135mmh = water_data2[:, 4]
 cum_inf_55mmh = water_data2[:, 5]
@@ -58,8 +58,8 @@ infil_30mmh = water_data2[:, 18]
 
 # [sterile, untreat, sterile, untreat]
 # all at 6 min, high inetnesity
+# observed data in mL
 leach_high_6min = np.array([14.192, 8.245, 2.410, 5.469])
-
 
 # all at 12 min, med intensity
 leach_med_12min = np.array([18.672, 19.0, 0.830, 11.407])
@@ -79,18 +79,20 @@ runoff_data2 = stackdata3(cum_time_30min,
 
 infil_data2 = stackdata3(cum_time_30min,
                          infil_135mmh, infil_55mmh, infil_30mmh)
+
+
 """
-hydroplot(percol_data2,
+hydroplot(runoff_data2,
           "Ponding at 135mmh", "Ponding at 55mmh", "Ponding at 30mmh",
           leach_high_6min,
           leach_med_12min, leach_med_30min,
           leach_low_30min)
 
-"""
 
-pb_crop = 0.99  # bulk density (g/cm^3)
+"""
+pb_crop = 0.99/10**3  # bulk density (g/cm^3) -> g/mm^3
 porosity_crop = 0.61  # Crop soil
-runoff_vel = 0.000001
+runoff_vel = 0.000001  # mm/min
 
 # Soil characteristics (defined above)
 fom_crop_sterile = 3.87/100.0
@@ -104,6 +106,7 @@ foc_crop_sterile2 = 0.70*foc_crop_untreat2
 
 # Pesticide Koc
 Koc_mexyl = [163.0, 50.0, 30]  # [(a) , (b), (c)] [ml/g]
+Koc_mexyl = np.array(Koc_mexyl)/10**3  # [mm3/g]
 
 # Kd (a) - NPIC @ http://npic.orst.edu/ingred/ppdmove.htm
 Kd_mexylA_crop_sterile = Koc_mexyl[0]*foc_crop_sterile  # ml/g
@@ -156,4 +159,62 @@ cum_mx_crop = pest_test(Kd_mexyl,
                         d, runoff_vel, dtGA=1)
 
 
+
+
+
+# pass a data set with evolution of mass in overland flow for each intensity
+cum_time_30min = cum_mx_crop[:, 0]
+
+# Cumulative leachate sterilized
+cum_mass_leach_st_135mmh = cum_mx_crop[:, 1]
+cum_mass_leach_st_55mmh = cum_mx_crop[:, 2]
+cum_mass_leach_st_30mmh = cum_mx_crop[:, 3]
+
+# Cumulative leachate untreated
+cum_mass_leach_un_135mmh = cum_mx_crop[:, 4]
+cum_mass_leach_un_55mmh = cum_mx_crop[:, 5]
+cum_mass_leach_un_30mmh = cum_mx_crop[:, 6]
+
+# Leachate sterilized
+mass_leach_st_135mmh = cum_mx_crop[:, 7]
+mass_leach_st_55mmh = cum_mx_crop[:, 8]
+mass_leach_st_30mmh = cum_mx_crop[:, 9]
+
+# Leachate untreated
+mass_leach_un_135mmh = cum_mx_crop[:, 10]
+mass_leach_un_55mmh = cum_mx_crop[:, 11]
+mass_leach_un_30mmh = cum_mx_crop[:, 12]
+
+
+# Group each compartment for graphing
+cum_leach_mx_crop = stackdata6(cum_time_30min,
+                               cum_mass_leach_st_135mmh, cum_mass_leach_st_55mmh, cum_mass_leach_st_30mmh,
+                               cum_mass_leach_un_135mmh, cum_mass_leach_un_55mmh, cum_mass_leach_un_30mmh)
+
+# NO RUN OFF DATA
+"""
+mass_percol2 = stackdata6(cum_time_30min,
+        cum_mass_leach_st_135mmh, cum_mass_leach_st_55mmh, cum_mass_leach_st_30mmh,
+        cum_mass_leach_un_135mmh, cum_mass_leach_un_55mmh, cum_mass_leach_un_30mmh)
+
+mass_runoff_st_135mmh = cum_mx_crop[:, 13]
+mass_runoff_st_55mmh = cum_mx_crop[:, 14]
+mass_runoff_st_30mmh = cum_mx_crop[:, 15]
+
+mass_runoff_un_135mmh = cum_mx_crop[:, 16]
+mass_runoff_un_55mmh = cum_mx_crop[:, 17]
+mass_runoff_un_30mmh = cum_mx_crop[:, 18]
+
+data = stackdata6(cum_time_30min,
+                  mass_runoff_st_135mmh, mass_runoff_st_55mmh, mass_runoff_st_30mmh,
+                  mass_runoff_un_135mmh, mass_runoff_un_55mmh, mass_runoff_un_30mmh)
+
+# print(data[:][:, 0])  # time axis
+print(data[:][:, 1])  # mass_runoff_st_135mmh
+print(len(data[0]))
+"""
+
+
+#pestiplot(cum_leach_mx_crop, mx_obs_sterile_crop, mx_obs_untreat_crop,
+#          'Cumulative Metalaxyl - Annual Crop Soil')
 
