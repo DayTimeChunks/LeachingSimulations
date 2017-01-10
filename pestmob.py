@@ -110,13 +110,15 @@ def pesti_ret(Kd,  # Kd_sterile, Kd_untreat,
 
 
 def pest_test(Kd,  # Kd list range to test
+              intensities,
               pb,
               ov_sat,
-              percol_data, pond_data, infil_data,
+              percol_data, pond_data, infil_data, time_sizes,
               area, soil_height,
               mass_ini,
-              pest_sol,
-              d, runoffvelocity, dtGA):
+              pest_sol_leach, pest_sol_pond,
+              d, runoffvelocity,
+              KFILM = True):
     """
     :param Kd: ensure units are mm3/g
     :param pb: ensure units are g/mm3
@@ -127,10 +129,9 @@ def pest_test(Kd,  # Kd list range to test
     :param area:
     :param soil_height:
     :param mass_ini:
-    :param pest_sol:
+    :param pest_sol_leach:
     :param d:
     :param runoffvelocity:
-    :param dtGA:
     :return:
     """
 
@@ -183,7 +184,7 @@ def pest_test(Kd,  # Kd list range to test
 
             K_L = kfilm(d, runoffvelocity)  # mm/min
             #  Start a new intensity scenario
-            for i in range(3):
+            for i in range(len(intensities)):
                 mass_tot = mass_ini[m]
                 # Whelan et al. 1987 (p4.9)
                 conc_soil_old = \
@@ -203,7 +204,10 @@ def pest_test(Kd,  # Kd list range to test
                 for t in range(len(cum_time_30min)):
                     # McGrath leaching loss:
                     conc_liq_new = conc_liq_old * exp(-(leached_vol[i][t]) / (r_factor * vol_h2o_sat))
+                    # ug/mm3 * exp(- mm3/[-]*mm3) = ug/mm3
+                    mass_liq_new = conc_liq_new*vol_h2o_sat  # ug
                     mass_out = (conc_liq_old - conc_liq_new) * vol_h2o_sat
+                    # ug
                     cum_mass_out += mass_out
 
                     # Store temporal and cumulative mass leached
@@ -212,22 +216,34 @@ def pest_test(Kd,  # Kd list range to test
 
                     # Overland flow exchange/transfer
                     if ponded_vol[i][t] > 0:
-                        # Mixing layer model from Havis (1986) and Havis et al. (1992)
-                        # Kfilm equation from Bennett and Myers, 1982; in Shi et al., 2011, p.1220)
-                        mass_transfered_overflow = K_L * (conc_liq_new-conc_in_overflow) * area * dtGA
-                        if mass_transfered_overflow < 0:
-                            print ("mass -> pond: ", mass_transfered_overflow, "at: ", t)
-                            print ("conc liq: ", conc_liq_new)
-                            print ("conc in of : ", conc_in_overflow)
-                        # mm/min * ug/mL * mm2/10**3 * dt = [ug]
-                        mass_in_overflow += mass_transfered_overflow
-                        conc_in_overflow = mass_in_overflow/ponded_vol[i][t]
-                        conc_liq_new -= mass_transfered_overflow/vol_h2o_sat
-                        # conc_liq_new += conc_in_overflow*infil_vol[i][t]/vol_h2o_sat
-                        # mass_in_overflow -= conc_in_overflow*infil_vol[i][t]
+                        if KFILM:
+                            # Mixing layer model from Havis (1986) and Havis et al. (1992)
+                            # Kfilm equation from Bennett and Myers, 1982; in Shi et al., 2011, p.1220)
+                            # mass_transfered_overflow = K_L * (conc_liq_new-conc_in_overflow) * area * time_sizes[i][t]
+                            mass_transfered_overflow = K_L * conc_liq_new * area * time_sizes[i][t]
+                            # mm/min * ug/mm3 * mm2 * dt = [ug]
+                            if mass_transfered_overflow < 0:
+                                if conc_in_overflow*ponded_vol[i][t] < mass_transfered_overflow:
+                                    mass_transfered_overflow = conc_in_overflow*ponded_vol[i][t]
+                                else:
+                                    print ("mass in of: ", conc_in_overflow*ponded_vol[i][t])
+                                    print ("mass -> pond: ", mass_transfered_overflow, "at: ", t)
+                                    print ("conc liq (t-1): ", conc_liq_old)
+                                    print ("conc liq (t): ", conc_liq_new)
+                                    print("conc in of (t-1): ", mass_overflow_dt[t-1]/vol_h2o_sat)
+                                    print ("conc in of (t): ", conc_in_overflow)
+
+                            mass_in_overflow += mass_transfered_overflow
+                            conc_in_overflow = mass_in_overflow/ponded_vol[i][t]  # ug/mm3
+                            mass_liq_new -= mass_transfered_overflow
+                            # conc_liq_new = mass_liq_new/vol_h2o_sat
+                            # conc_liq_new += conc_in_overflow*infil_vol[i][t]/vol_h2o_sat
+                            # mass_in_overflow -= conc_in_overflow*infil_vol[i][t]
 
 #                        if mass_in_overflow < 0:
 #                            print("Error in mixing layer approach, mass is negative")
+                        else:
+                            print("Error, over land flow transfer not defined")
 
                     # Store the temporal mass in overflow
                     mass_overflow_dt.append(mass_in_overflow)
@@ -240,38 +256,46 @@ def pest_test(Kd,  # Kd list range to test
 
                 # Calculate error of intensity i, @ (kd, m)
                 if i == 0 and m == 0:
-                    highint_error6_st = (cum_mass_out_dt[5] - pest_sol[m][i]) ** 2
-                    temp_cum_out_high_st = cum_mass_out_dt
+                    highint_error6_st = (cum_mass_out_dt[5] - pest_sol_leach[m][i]) ** 2 + \
+                                        (mass_overflow_dt[5] - pest_sol_pond[m][i])**2
                     temp_out_high_st = mass_out_dt
+                    temp_cum_out_high_st = cum_mass_out_dt
                     temp_overflow_high_st = mass_overflow_dt
                     # print("Mass balance for intensity ", i + 1, "and Kd: ", Kd[k], "is ",
                     #      abs(mass_ini[m] - mass_tot - cum_mass_out_dt[-1]) < 1*10**-6)
                 elif i == 1 and m == 0:
-                    medint_error12_st = (cum_mass_out_dt[11] - pest_sol[m][i]) ** 2
-                    medint_error30_st = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
+                    medint_error12_st = (cum_mass_out_dt[11] - pest_sol_leach[m][i]) ** 2 + \
+                                        (mass_overflow_dt[11] - pest_sol_pond[m][i])**2
+                    medint_error30_st = (cum_mass_out_dt[-1] - pest_sol_leach[m][i + 1]) ** 2 + \
+                                        (mass_overflow_dt[-1] - pest_sol_pond[m][i + 1])**2
                     temp_cum_out_med_st = cum_mass_out_dt
                     temp_out_med_st = mass_out_dt
                     temp_overflow_med_st = mass_overflow_dt
                     # print("Mass balance for intensity ", i + 1, "and Kd: ", Kd[k], "is ",
                     #      abs(mass_ini[m] - mass_tot - cum_mass_out_dt[-1]) < 1 * 10 ** -6)
                 elif i == 2 and m == 0:
-                    lowint_error30_st = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
+                    lowint_error30_st = (cum_mass_out_dt[-1] - pest_sol_leach[m][i + 1]) ** 2 + \
+                                        (mass_overflow_dt[-1] - pest_sol_pond[m][i + 1]) ** 2
                     temp_cum_out_low_st = cum_mass_out_dt
                     temp_out_low_st = mass_out_dt
                     temp_overflow_low_st = mass_overflow_dt
                 elif i == 0 and m == 1:
-                    highint_error6_un = (cum_mass_out_dt[5] - pest_sol[m][i]) ** 2
+                    highint_error6_un = (cum_mass_out_dt[5] - pest_sol_leach[m][i]) ** 2 + \
+                                        (mass_overflow_dt[5] - pest_sol_pond[m][i]) ** 2
                     temp_cum_out_high_un = cum_mass_out_dt
                     temp_out_high_un = mass_out_dt
                     temp_overflow_high_un = mass_overflow_dt
                 elif i == 1 and m == 1:
-                    medint_error12_un = (cum_mass_out_dt[11] - pest_sol[m][i]) ** 2
-                    medint_error30_un = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
+                    medint_error12_un = (cum_mass_out_dt[11] - pest_sol_leach[m][i]) ** 2 + \
+                                        (mass_overflow_dt[11] - pest_sol_pond[m][i])**2
+                    medint_error30_un = (cum_mass_out_dt[-1] - pest_sol_leach[m][i + 1]) ** 2 + \
+                                        (mass_overflow_dt[-1] - pest_sol_pond[m][i+1])**2
                     temp_cum_out_med_un = cum_mass_out_dt
                     temp_out_med_un = mass_out_dt
                     temp_overflow_med_un = mass_overflow_dt
                 elif i == 2 and m == 1:
-                    lowint_error30_un = (cum_mass_out_dt[-1] - pest_sol[m][i + 1]) ** 2
+                    lowint_error30_un = (cum_mass_out_dt[-1] - pest_sol_leach[m][i + 1]) ** 2 + \
+                                        (mass_overflow_dt[-1] - pest_sol_pond[m][i+1])**2
                     temp_cum_out_low_un = cum_mass_out_dt
                     temp_out_low_un = mass_out_dt
                     temp_overflow_low_un = mass_overflow_dt
@@ -279,7 +303,7 @@ def pest_test(Kd,  # Kd list range to test
             if m == 0:
                 error_test = (((highint_error6_st +
                               medint_error12_st + medint_error30_st +
-                              lowint_error30_st)/4) ** 0.5)/(max(pest_sol[m])-min(pest_sol[m]))
+                              lowint_error30_st)/4) ** 0.5)/(max(pest_sol_leach[m])-min(pest_sol_leach[m]))
 
                 if error_test < error:
                     error = error_test
@@ -303,7 +327,7 @@ def pest_test(Kd,  # Kd list range to test
             elif m == 1:
                 error_test = (((highint_error6_un +
                               medint_error12_un + medint_error30_un +
-                              lowint_error30_un)/4) ** 0.5)/(max(pest_sol[m])-min(pest_sol[m]))
+                              lowint_error30_un)/4) ** 0.5)/(max(pest_sol_leach[m])-min(pest_sol_leach[m]))
                 if error_test < error:
                     error = error_test
                     error_un = error

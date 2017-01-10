@@ -1,7 +1,9 @@
+
 from leach_hydrology import *
 from pestmob import *
+from mixinglayer import *
 
-
+intensities = [2.25, 0.92, 0.5]  # mm/min = [0.225, 0.092, 0.05] cm/min
 d = (14.93 * 2)  # Diameter of falcon tube (mm)
 area = ((d / 2) ** 2) * 3.1416  # (mm2)
 zl = soil_height = 30  # Mixing layer depth in mm
@@ -37,6 +39,7 @@ cum_time_30min = water_data2[:, 0]
 cum_inf_135mmh = water_data2[:, 4]
 cum_inf_55mmh = water_data2[:, 5]
 cum_inf_30mmh = water_data2[:, 6]
+
 cum_leach_135mmh = water_data2[:, 7]
 cum_leach_55mmh = water_data2[:, 8]
 cum_leach_30mmh = water_data2[:, 9]
@@ -53,6 +56,10 @@ infil_135mmh = water_data2[:, 16]
 infil_55mmh = water_data2[:, 17]
 infil_30mmh = water_data2[:, 18]
 
+time_size_135mmh = water_data2[:, 19]
+time_size_55mmh = water_data2[:, 20]
+time_size_30mmh = water_data2[:, 21]
+
 # Hydro data
 percol_data2 = stackdata3(cum_time_30min,
                           cum_leach_135mmh, cum_leach_55mmh, cum_leach_30mmh)
@@ -63,62 +70,45 @@ runoff_data2 = stackdata3(cum_time_30min,
 infil_data2 = stackdata3(cum_time_30min,
                          infil_135mmh, infil_55mmh, infil_30mmh)
 
-""" Observed Percolation Annual Crop """
+time_sizes2 = [time_size_135mmh, time_size_55mmh, time_size_30mmh]
 
-# [sterile, untreat, sterile, untreat]
-# all at 6 min, high inetnesity
-# observed data in mL
-leach_high_6min = np.array([14.192, 8.245, 2.410, 5.469])
+# print(len(time_size_135mmh), len(cum_leach_135mmh))
+#####################################################################
+# END OF HYDRO  -> START Contaminants
+#####################################################################
 
-# all at 12 min, med intensity
-leach_med_12min = np.array([18.672, 19.0, 0.830, 11.407])
-
-# all at 30min, med intensity
-leach_med_30min = np.array([12.697, 2.473, 3.52, 20.291])
-
-# all at 30min, low intensity
-leach_low_30min = np.array([29.656, 9.375, 0.409, 3.385])
-
-
-
-
-"""
-hydroplot(runoff_data2,
-          "Ponding at 135mmh", "Ponding at 55mmh", "Ponding at 30mmh",
-          leach_high_6min,
-          leach_med_12min, leach_med_30min,
-          leach_low_30min)
-
-
-"""
+# Soil characteristics
 pb_crop = 0.99/10**3  # bulk density (g/cm^3) -> g/mm^3
 porosity_crop = 0.61  # Crop soil
-runoff_vel = 1.0  # mm/min
+soil_height2 = 23
 
-# Soil characteristics (defined above)
+# Assumed (used to calculate Reynolds number)
+runoff_vel = 100  # mm/min
+
+# Fraction organic matter and carbon (Scenario 1)
 fom_crop_sterile = 3.87/100.0
 fom_crop_untreat = 5.51/100.0
 foc_crop_sterile = 0.58*fom_crop_sterile
 foc_crop_untreat = 0.58*fom_crop_untreat
 
-# Soil characteristics (OC Black & Walkley)
+# Soil characteristics (OC Black & Walkley - Scenario 2)
 foc_crop_untreat2 = 2.04/100
 foc_crop_sterile2 = 0.70*foc_crop_untreat2
 
 # Pesticide Koc
 Koc_mexyl = [163.0, 50.0, 30]  # [(a) , (b), (c)] [ml/g]
-Koc_mexyl = np.array(Koc_mexyl)*10**3 # [mm3/g]
+Koc_mexyl = np.array(Koc_mexyl)*10**3  # [mm3/g]
 
 # Kd (a) - NPIC @ http://npic.orst.edu/ingred/ppdmove.htm
-Kd_mexylA_crop_sterile = Koc_mexyl[0]*foc_crop_sterile  # ml/g
+Kd_mexylA_crop_sterile = Koc_mexyl[0]*foc_crop_sterile
 Kd_mexylA_crop_untreat = Koc_mexyl[0]*foc_crop_untreat
 
 # Kd (b) - PAN @ http://www.pesticideinfo.org/
-Kd_mexylB_crop_sterile = Koc_mexyl[1]*foc_crop_sterile  # ml/g
+Kd_mexylB_crop_sterile = Koc_mexyl[1]*foc_crop_sterile
 Kd_mexylB_crop_untreat = Koc_mexyl[1]*foc_crop_untreat
 
 # Kd (c) - https://toxnet.nlm.nih.gov/cgi-bin/sis/search/a?dbs+hsdb:@term+@DOCNO+7061
-Kd_mexylC_crop_sterile = Koc_mexyl[2]*foc_crop_sterile  # ml/g
+Kd_mexylC_crop_sterile = Koc_mexyl[2]*foc_crop_sterile
 Kd_mexylC_crop_untreat = Koc_mexyl[2]*foc_crop_untreat
 
 Kd_mexyl = [Kd_mexylA_crop_sterile, Kd_mexylA_crop_untreat,
@@ -126,7 +116,7 @@ Kd_mexyl = [Kd_mexylA_crop_sterile, Kd_mexylA_crop_untreat,
             Kd_mexylC_crop_sterile, Kd_mexylC_crop_untreat]
 
 
-# Initial mass
+# Initial mass - 2nd pulse
 mx_ini_sterile_list = [1496.75, 1440.72, 1047.95, 1462.08,  # 0 days
                        1127.52, 1267.11, 994.09, 1050.48]  # 10 days
 
@@ -148,88 +138,66 @@ mx_obs_untreat_crop = np.array([(175.44 + 40.03) / 2.0,
                                 (272.48 + 168.51) / 2.0, (35.12 + 146.10) / 2.0,
                                 (86.01 + 76.49) / 2.0])
 
-mx_sol = [mx_obs_sterile_crop, mx_obs_untreat_crop]
+mx_sol_leach = [mx_obs_sterile_crop, mx_obs_untreat_crop]
 
+# Observed Metalaxyl in Ponding - Crop
+# high, med-12, med-30, low
+mx_obs_sterile_crop_roff = np.array([(5.74 + 4.07) / 2.0,
+                                     (9.16) / 1.0, (4.34 + 14.03) / 2.0,
+                                     (12.42) / 1.0])
 
+mx_obs_untreat_crop_roff = np.array([(4.72 + 3.17) / 2.0,
+                                     (1.84) / 1.0, (8.90 + 0.14) / 2.0,
+                                     (5.82 + 9.65) / 1.0])
+
+mx_sol_pond = [mx_obs_sterile_crop_roff, mx_obs_untreat_crop_roff]
+
+# Any length unit input must be: "mm"
 cum_mx_crop2 = pest_test(Kd_mexyl,
-                        pb_crop,
-                        ovSat_crop,
-                        percol_data2, runoff_data2, infil_data2,
-                        area, soil_height,
-                        mx_ini,
-                        mx_sol,
-                        d, runoff_vel, dtGA=1)
+                         intensities,
+                         pb_crop,
+                         ovSat_crop,
+                         percol_data2, runoff_data2, infil_data2, time_sizes2,
+                         area, soil_height2,
+                         mx_ini,
+                         mx_sol_leach, mx_sol_pond,
+                         d, runoffvelocity=100,
+                         KFILM=True)
 
 # Time axis
 cum_time_30min = cum_mx_crop2[:, 0]
 
-# Cumulative leachate sterilized
-cum_mass_leach_st_135mmh = cum_mx_crop2[:, 1]
-cum_mass_leach_st_55mmh = cum_mx_crop2[:, 2]
-cum_mass_leach_st_30mmh = cum_mx_crop2[:, 3]
+# Ponding sterilized
+mass_runoff_st_135mmh = cum_mx_crop2[:, 13]
+mass_runoff_st_55mmh = cum_mx_crop2[:, 14]
+mass_runoff_st_30mmh = cum_mx_crop2[:, 15]
 
-# Cumulative leachate untreated
-cum_mass_leach_un_135mmh = cum_mx_crop2[:, 4]
-cum_mass_leach_un_55mmh = cum_mx_crop2[:, 5]
-cum_mass_leach_un_30mmh = cum_mx_crop2[:, 6]
+# Ponding untreated
+mass_runoff_un_135mmh = cum_mx_crop2[:, 16]
+mass_runoff_un_55mmh = cum_mx_crop2[:, 17]
+mass_runoff_un_30mmh = cum_mx_crop2[:, 18]
 
-# Leachate sterilized
-mass_leach_st_135mmh = cum_mx_crop2[:, 7]
-mass_leach_st_55mmh = cum_mx_crop2[:, 8]
-mass_leach_st_30mmh = cum_mx_crop2[:, 9]
-
-# Leachate untreated
-mass_leach_un_135mmh = cum_mx_crop2[:, 10]
-mass_leach_un_55mmh = cum_mx_crop2[:, 11]
-mass_leach_un_30mmh = cum_mx_crop2[:, 12]
-
-mass_percol2 = stackdata6(cum_time_30min,
-        cum_mass_leach_st_135mmh, cum_mass_leach_st_55mmh, cum_mass_leach_st_30mmh,
-        cum_mass_leach_un_135mmh, cum_mass_leach_un_55mmh, cum_mass_leach_un_30mmh)
+mass_overflow2 = stackdata6(cum_time_30min,
+        mass_runoff_st_135mmh, mass_runoff_st_55mmh, mass_runoff_st_30mmh,
+        mass_runoff_un_135mmh, mass_runoff_un_55mmh, mass_runoff_un_30mmh)
 
 # Organized individually:
 # [sterile, untreat, sterile_aged, untreat_aged]
 # all at 6 min, high inetnesity
-leach2_mx_high_6min = np.array([8.35, 175.44, 37.57, 40.03])
+roff2_mx_high_6min = np.array([5.7, 4.7, 4.1, 3.2])
 
 # all at 12 min, med intensity
-leach2_mx_med_12min = np.array([290.27, 272.48, 0., 168.51])
+roff2_mx_med_12min = np.array([0., 1.8, 9.2, 0.])
 
 # all at 30min, med intensity
-leach2_mx_med_30min = np.array([93.29, 35.12, 82.15, 146.10])
+roff2_mx_med_30min = np.array([4.3, 8.9, 14.0, 0.1])
 
 # all at 30min, low intensity
-leach2_mx_low_30min = np.array([285.86, 86.01, 0., 76.49])
+roff2_mx_low_30min = np.array([0., 5.8, 12.4, 9.6])
 
-pestiplot_all(mass_percol2,
-              leach2_mx_high_6min,
-              leach2_mx_med_12min, leach2_mx_med_30min,
-              leach2_mx_low_30min,
-              'Mass in Leachate Metalaxyl - 2nd Pulse Crop Soil')
-# NO RUN OFF DATA
-"""
-mass_percol2 = stackdata6(cum_time_30min,
-        cum_mass_leach_st_135mmh, cum_mass_leach_st_55mmh, cum_mass_leach_st_30mmh,
-        cum_mass_leach_un_135mmh, cum_mass_leach_un_55mmh, cum_mass_leach_un_30mmh)
-
-mass_runoff_st_135mmh = cum_mx_crop[:, 13]
-mass_runoff_st_55mmh = cum_mx_crop[:, 14]
-mass_runoff_st_30mmh = cum_mx_crop[:, 15]
-
-mass_runoff_un_135mmh = cum_mx_crop[:, 16]
-mass_runoff_un_55mmh = cum_mx_crop[:, 17]
-mass_runoff_un_30mmh = cum_mx_crop[:, 18]
-
-data = stackdata6(cum_time_30min,
-                  mass_runoff_st_135mmh, mass_runoff_st_55mmh, mass_runoff_st_30mmh,
-                  mass_runoff_un_135mmh, mass_runoff_un_55mmh, mass_runoff_un_30mmh)
-
-# print(data[:][:, 0])  # time axis
-print(data[:][:, 1])  # mass_runoff_st_135mmh
-print(len(data[0]))
-"""
-
-
-#pestiplot(cum_leach_mx_crop, mx_obs_sterile_crop, mx_obs_untreat_crop,
-#          'Cumulative Metalaxyl - Annual Crop Soil')
-
+pestiplot_all(mass_overflow2,
+              roff2_mx_high_6min,
+              roff2_mx_med_12min, roff2_mx_med_30min,
+              roff2_mx_low_30min,
+              'Mass in Ponding Metalaxyl - 2nd Pulse Crop Soil',
+              'Metalaxyl')

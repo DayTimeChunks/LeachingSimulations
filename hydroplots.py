@@ -5,6 +5,17 @@ import seaborn as sns
 sns.set_context(rc={'lines.markeredgewidth': 0.1})
 
 
+def stackdata21(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o,
+                p, q, r,
+                s, t, u):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u))
+    return data
+
+
 def stackdata18(time,
                 a, b, c, d,
                 e, f, g, h,
@@ -55,7 +66,9 @@ def add_margin(ax, x=0.05, y=0.05):
 
 def hydroplot(data,
               y1, y2, y3,
-              leach_high_6min, leach_med_12min, leach_med_30min, leach_low_30min,
+              obs_high_6min,
+              obs_med_12min, obs_med_30min,
+              obs_low_30min,
               title):
     """
     :param data: see: leach_hydrology.py. Need to ensure data
@@ -77,21 +90,6 @@ def hydroplot(data,
     color_sequence = ['#d62728', '#2ca02c', '#1f77b4',  # red, green, blue
                       '#d62728', '#2ca02c', '#1f77b4']  # red, green, blue
 
-    filled_markers = ['d', 'd', 'd',
-                      'o', 'o', 'o',
-                      # '.', '.', '.',
-                      ]
-    line_styles = ['dashed', 'dashed', 'dashed']
-
-    """
-    fig, ax1 = plt.subplots()
-    c = 0
-    for i in range(1, len(data[2])):
-        # Print three y-variables (for each intensity)
-        ax1.plot(data[:, 0], data[:, i], color_sequence[c], linestyle='dashed', label=y_var[i-1])
-        #ax1.errorbar(x, y, yerr=yerr, fmt='o')
-        c += 1
-    """
     # Convert from mm3 to cm3 all volume hydro data.
     fig, ax1 = plt.subplots()
     ax1.plot(data[:, 0], data[:, 1]/10**3, color_sequence[0], linestyle='dashed', label=y_var[1 - 1])
@@ -113,25 +111,26 @@ def hydroplot(data,
     thirty1 = np.array([29.8])
     thirty = np.array([30])
 
-    ax1.plot(six, leach_high_6min[0], color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(six, leach_high_6min[1], color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
-    ax1.plot(six1, leach_high_6min[2], color='#d62728', marker='^', linestyle='None', label=soil_modal[2])
-    ax1.plot(six1, leach_high_6min[3], color='#d62728', marker='s', linestyle='None', label=soil_modal[3])
+    # [sterile, untreat, sterile_aged, untreat_aged]
+    ax1.plot(six, obs_high_6min[0], color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six, obs_high_6min[1], color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(six1, obs_high_6min[2], color='#d62728', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(six1, obs_high_6min[3], color='#d62728', marker='s', linestyle='None', label=soil_modal[3])
 
-    ax1.plot(twelve, leach_med_12min[0], color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(twelve, leach_med_12min[1], color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
-    ax1.plot(twelve1, leach_med_12min[2], color='#2ca02c', marker='^', linestyle='None', label=soil_modal[2])
-    ax1.plot(twelve1, leach_med_12min[3], color='#2ca02c', marker='s', linestyle='None', label=soil_modal[3])
+    ax1.plot(twelve, obs_med_12min[0], color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve, obs_med_12min[1], color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(twelve1, obs_med_12min[2], color='#2ca02c', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(twelve1, obs_med_12min[3], color='#2ca02c', marker='s', linestyle='None', label=soil_modal[3])
 
-    ax1.plot(thirty, leach_med_30min[0], color='#2ca02c', marker='v', linestyle='None')
-    ax1.plot(thirty1, leach_med_30min[1], color='#2ca02c', marker='o', linestyle='None')
-    ax1.plot(thirty, leach_med_30min[2], color='#2ca02c', marker='^', linestyle='None')
-    ax1.plot(thirty1, leach_med_30min[3], color='#2ca02c', marker='s', linestyle='None')
+    ax1.plot(thirty, obs_med_30min[0], color='#2ca02c', marker='v', linestyle='None')
+    ax1.plot(thirty1, obs_med_30min[1], color='#2ca02c', marker='o', linestyle='None')
+    ax1.plot(thirty, obs_med_30min[2], color='#2ca02c', marker='^', linestyle='None')
+    ax1.plot(thirty1, obs_med_30min[3], color='#2ca02c', marker='s', linestyle='None')
 
-    ax1.plot(thirty, leach_low_30min[0], color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(thirty1, leach_low_30min[1], color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
-    ax1.plot(thirty, leach_low_30min[2], color='#1f77b4', marker='^', linestyle='None', label=soil_modal[2])
-    ax1.plot(thirty1, leach_low_30min[3], color='#1f77b4', marker='s', linestyle='None', label=soil_modal[3])
+    ax1.plot(thirty, obs_low_30min[0], color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, obs_low_30min[1], color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(thirty, obs_low_30min[2], color='#1f77b4', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(thirty1, obs_low_30min[3], color='#1f77b4', marker='s', linestyle='None', label=soil_modal[3])
 
     add_margin(ax1, x=0.01, y=0.01)
 
@@ -182,6 +181,9 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
             c += 1
 
     """ Lab results """
+    soil_modal = ['Sterile', 'Untreated',
+                  'Ster. Aged', 'Untr. Aged']
+
     time = np.array([6, 12, 30, 30])  # Minutes
 
     ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='o', linestyle='None', label=obs_intens[0])
@@ -194,6 +196,7 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
     ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
     ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='v', linestyle='None', label=obs_intens[5])
 
+
     # plt.axis((0, 30, 0, 400))
     # Update the limits using set_xlim and set_ylim
     add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
@@ -204,6 +207,90 @@ def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
 
     plt.legend(loc='upper left')
     plt.show()
+
+
+def pestiplot_all(data,
+                  obs_high_6min,
+                  obs_med_12min, obs_med_30min,
+                  obs_low_30min,
+                  title,
+                  pest_name):
+    """
+    :param data: length 7, where:
+     index 0 = time
+      index 1 to 3 = Sterile, Kd_min
+       index 4 to 6 = Untreated, Kd_max
+    :return: Plot showing mass output (2 curves per soil)
+    """
+    sns.set(style="whitegrid")
+
+    treat_intens = ['Sim. Ster. (135 mm/h)', 'Sim. Ster. (55 mm/h)', 'Sim. Ster. (30 mm/h)',
+                    'Sim. Unt. (135 mm/h)', 'Sim. Unt. (55 mm/h)', 'Sim. Unt. (30 mm/h)']
+    obs_intens = ['Obs. Ster. (135 mm/h)', 'Obs. Ster. (55 mm/h)', 'Obs. Ster. (30 mm/h)',
+                  'Obs. Unt. (135 mm/h)', 'Obs. Unt. (55 mm/h)', 'Obs. Unt. (30 mm/h)']
+
+    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
+                      '#d62728', '#2ca02c', '#1f77b4']
+
+    fig, ax1 = plt.subplots()
+
+    #  Plot data, which is in numpy array format, with:
+    c = 0
+    for i in range(1, len(data[0])):
+        if i < 4:
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1])
+            c += 1
+        else:
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1], linestyle='dashed')
+            c += 1
+
+    """ Lab results """
+    soil_modal = ['Sterile', 'Untreated',
+                  'Ster. Aged', 'Untr. Aged']
+
+    six = np.array([6])
+    twelve = np.array([12])
+    thirty = np.array([30])
+
+    six1 = np.array([5.8])
+    twelve1 = np.array([11.8])
+    thirty1 = np.array([29.8])
+
+    ax1.plot(six, obs_high_6min[0], color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six, obs_high_6min[1], color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(six1, obs_high_6min[2], color='#d62728', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(six1, obs_high_6min[3], color='#d62728', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(twelve, obs_med_12min[0], color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve, obs_med_12min[1], color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(twelve1, obs_med_12min[2], color='#2ca02c', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(twelve1, obs_med_12min[3], color='#2ca02c', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(thirty, obs_med_30min[0], color='#2ca02c', marker='v', linestyle='None')
+    ax1.plot(thirty1, obs_med_30min[1], color='#2ca02c', marker='o', linestyle='None')
+    ax1.plot(thirty, obs_med_30min[2], color='#2ca02c', marker='^', linestyle='None')
+    ax1.plot(thirty1, obs_med_30min[3], color='#2ca02c', marker='s', linestyle='None')
+
+    ax1.plot(thirty, obs_low_30min[0], color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, obs_low_30min[1], color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(thirty, obs_low_30min[2], color='#1f77b4', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(thirty1, obs_low_30min[3], color='#1f77b4', marker='s', linestyle='None', label=soil_modal[3])
+
+    obs_high_6min,
+    obs_med_12min, obs_med_30min,
+    obs_low_30min,
+
+    # plt.axis((0, 30, 0, 400))
+    # Update the limits using set_xlim and set_ylim
+    add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
+
+    ax1.set_xlabel('Time (min)')
+    ax1.set_ylabel(pest_name + ' [' + r'$\mu$g]')
+    plt.title(title)
+
+    plt.legend(loc='upper left', fancybox=True, framealpha=0.8)
+    plt.show()
+
 
 
 def pestiplot_inst(data, obs_sol_sterile, obs_sol_untreat, title):

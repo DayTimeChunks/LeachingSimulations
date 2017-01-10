@@ -39,6 +39,7 @@ def leachsim(dtGA = 1,  # Timestep in minute
         runoff_dt = []
         infil_dt = []
         leach_dt = []
+        time_size_dt = []
 
         """ Start of rainfall event X """
         while cum_time < StormD:
@@ -69,6 +70,7 @@ def leachsim(dtGA = 1,  # Timestep in minute
             inf = green_output[1]
             runoff = green_output[2]
             leach = green_output[3]
+            time_size = green_output[4]
 
             # Instantaneous time series
             infil_vol = (inf * area * numSystems)  # mm3
@@ -79,6 +81,9 @@ def leachsim(dtGA = 1,  # Timestep in minute
 
             leached_vol = (leach * area * numSystems)
             leach_dt.append(leached_vol)
+
+            # Variable time step size (due to ponding in-between dtga)
+            time_size_dt.append(time_size)
 
             # Cummulative time series
             cum_time_dt.append(cum_time)
@@ -112,9 +117,9 @@ def leachsim(dtGA = 1,  # Timestep in minute
             # print("cum runoff end: ", cum_runoff_dt[-1])
             infil_6min = infil_dt
             # print("cum inf. end: ", cum_inf_dt[-1])
-
             leach_6min = leach_dt
             # print("cum leach end: ", cum_leach_dt[-1])
+            time_size_6min = time_size_dt
             mass_bal = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
             print("Mass balance", mass_bal)
 
@@ -128,6 +133,7 @@ def leachsim(dtGA = 1,  # Timestep in minute
             runoff_12min = runoff_dt
             infil_12min = infil_dt
             leach_12min = leach_dt
+            time_size_12min = time_size_dt
             mass_bal = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
             print("Mass balance", mass_bal)
 
@@ -141,17 +147,19 @@ def leachsim(dtGA = 1,  # Timestep in minute
             runoff_30min = runoff_dt
             infil_30min = infil_dt
             leach_30min = leach_dt
+            time_size_30min = time_size_dt
             mass_bal = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
             print("Mass balance", mass_bal)
 
         else:
             print("Do you have more than 3 rainfall scenarios?")
 
-    # Data in cm3 (i.e. mL)
-    return stackdata18(cum_time_30min,
+    # Data in mm3
+    return stackdata21(cum_time_30min,
                        leach_6min, leach_12min, leach_30min,
                        cum_inf_6min, cum_inf_12min, cum_inf_30min,
                        cum_leach_6min, cum_leach_12min, cum_leach_30min,
                        runoff_6min, runoff_12min, runoff_30min,
                        cum_runoff_6min, cum_runoff_12min, cum_runoff_30min,
-                       infil_6min, infil_12min, infil_30min)
+                       infil_6min, infil_12min, infil_30min,
+                       time_size_6min, time_size_12min, time_size_30min)

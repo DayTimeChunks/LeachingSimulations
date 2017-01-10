@@ -23,6 +23,7 @@ def greenampt(ksat, wfs, dtga, intensity, ovsat, ov, zl, cum_infilt, cum_time):
     """ 1) """
 
     F1 = cum_infilt
+    time_size = dtga
     # print("F1 - in:", F1)
 
     # Infiltration Capacity "f"
@@ -84,7 +85,8 @@ def greenampt(ksat, wfs, dtga, intensity, ovsat, ov, zl, cum_infilt, cum_time):
                 # print("F2 at false inter-ponding 2: ", F2)
             else:
                 # Calculate F2 iteratively again, but with F1 being updated until ponding occurs
-                print("G&A ponding during time step, with size:", tp)
+                print("G&A ponding during time step, with tp size:", tp, "at t=", cum_time)
+                time_size = tp
                 # TestCondition = 3
                 F1 = F1 + intensity * tp
                 Fold2 = 0.0
@@ -124,4 +126,4 @@ def greenampt(ksat, wfs, dtga, intensity, ovsat, ov, zl, cum_infilt, cum_time):
     # print("Final F2", F2, "inf(t): ", inf, "leach(t): ", leach)
     # print("intes*dtGA", intensity * dtga)
 
-    return [F2, inf, ponding, leach]
+    return [F2, inf, ponding, leach, time_size]
