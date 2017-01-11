@@ -5,51 +5,6 @@ import seaborn as sns
 sns.set_context(rc={'lines.markeredgewidth': 0.1})
 
 
-def stackdata21(time,
-                a, b, c, d,
-                e, f, g, h,
-                i, j, k, l,
-                m, n, o,
-                p, q, r,
-                s, t, u):
-    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u))
-    return data
-
-
-def stackdata18(time,
-                a, b, c, d,
-                e, f, g, h,
-                i, j, k, l,
-                m, n, o,
-                p, q, r):
-    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r))
-    return data
-
-
-def stackdata15(time,
-                a, b, c, d,
-                e, f, g, h,
-                i, j, k, l,
-                m, n, o):
-    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o))
-    return data
-
-
-def stackdata9(time, l1, l2, l3, l4, l5, l6, l7, l8, l9):
-    data = np.column_stack((time, l1, l2, l3, l4, l5, l6, l7, l8, l9))
-    return data
-
-
-def stackdata6(time, l1, l2, l3, l4, l5, l6):
-    data = np.column_stack((time, l1, l2, l3, l4, l5, l6))
-    return data
-
-
-def stackdata3(time, a, b, c):
-    data = np.column_stack((time, a, b, c))
-    return data
-
-
 def add_margin(ax, x=0.05, y=0.05):
     # This will, by default, add 5% to the x and y margins. You
     # can customise this using the x and y arguments when you call it.
@@ -145,70 +100,6 @@ def hydroplot(data,
     plt.show()
 
 
-def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
-    """
-    :param data: length 7, where:
-     index 0 = time
-      index 1 to 3 = Sterile, Kd_min
-       index 4 to 6 = Untreated, Kd_max
-    :return: Plot showing mass output (2 curves per soil)
-    """
-    sns.set(style="whitegrid")
-
-    treatment = ['Sterile', 'Untreated']
-    intesities = ['(135 mm/h)', '(55 mm/h)', '(30 mm/h)']
-
-    treat_intens = ['Sim. Ster. (135 mm/h)', 'Sim. Ster. (55 mm/h)', 'Sim. Ster. (30 mm/h)',
-                   'Sim. Unt. (135 mm/h)', 'Sim. Unt. (55 mm/h)', 'Sim. Unt. (30 mm/h)']
-    obs_intens = ['Obs. Ster. (135 mm/h)', 'Obs. Ster. (55 mm/h)', 'Obs. Ster. (30 mm/h)',
-                   'Obs. Unt. (135 mm/h)', 'Obs. Unt. (55 mm/h)', 'Obs. Unt. (30 mm/h)']
-
-    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
-                      '#d62728', '#2ca02c', '#1f77b4']
-
-    filled_markers = ['d', '^', '^', 'o', 'd', '^', '^', 'o']
-
-    fig, ax1 = plt.subplots()
-
-    #  Plot data, which is in numpy array format, with:
-    c = 0
-    for i in range(1, len(data[0])):
-        if i < 4:
-            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1])
-            c += 1
-        else:
-            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1], linestyle='dashed')
-            c += 1
-
-    """ Lab results """
-    soil_modal = ['Sterile', 'Untreated',
-                  'Ster. Aged', 'Untr. Aged']
-
-    time = np.array([6, 12, 30, 30])  # Minutes
-
-    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='o', linestyle='None', label=obs_intens[0])
-    ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=obs_intens[1])
-    ax1.plot(time[2], obs_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
-    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='o', linestyle='None', label=obs_intens[2])
-
-    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='v', linestyle='None', label=obs_intens[3])
-    ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=obs_intens[4])
-    ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
-    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='v', linestyle='None', label=obs_intens[5])
-
-
-    # plt.axis((0, 30, 0, 400))
-    # Update the limits using set_xlim and set_ylim
-    add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
-
-    ax1.set_xlabel('Time (min)')
-    ax1.set_ylabel('mu.g')
-    plt.title(title)
-
-    plt.legend(loc='upper left')
-    plt.show()
-
-
 def pestiplot_all(data,
                   obs_high_6min,
                   obs_med_12min, obs_med_30min,
@@ -285,12 +176,122 @@ def pestiplot_all(data,
     add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
 
     ax1.set_xlabel('Time (min)')
-    ax1.set_ylabel(pest_name + ' [' + r'$\mu$g]')
+    ax1.set_ylabel(pest_name + ' [' + r'$\mu$' + 'g]')
     plt.title(title)
 
     plt.legend(loc='upper left', fancybox=True, framealpha=0.8)
     plt.show()
 
+
+def stackdata21(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o,
+                p, q, r,
+                s, t, u):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u))
+    return data
+
+
+def stackdata18(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o,
+                p, q, r):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r))
+    return data
+
+
+def stackdata15(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o))
+    return data
+
+
+def stackdata9(time, l1, l2, l3, l4, l5, l6, l7, l8, l9):
+    data = np.column_stack((time, l1, l2, l3, l4, l5, l6, l7, l8, l9))
+    return data
+
+
+def stackdata6(time, l1, l2, l3, l4, l5, l6):
+    data = np.column_stack((time, l1, l2, l3, l4, l5, l6))
+    return data
+
+
+def stackdata3(time, a, b, c):
+    data = np.column_stack((time, a, b, c))
+    return data
+
+#######################
+# OLD PLOTS, not in use
+########################
+def pestiplot(data, obs_sol_sterile, obs_sol_untreat, title):
+    """
+    :param data: length 7, where:
+     index 0 = time
+      index 1 to 3 = Sterile, Kd_min
+       index 4 to 6 = Untreated, Kd_max
+    :return: Plot showing mass output (2 curves per soil)
+    """
+    sns.set(style="whitegrid")
+
+    treatment = ['Sterile', 'Untreated']
+    intesities = ['(135 mm/h)', '(55 mm/h)', '(30 mm/h)']
+
+    treat_intens = ['Sim. Ster. (135 mm/h)', 'Sim. Ster. (55 mm/h)', 'Sim. Ster. (30 mm/h)',
+                   'Sim. Unt. (135 mm/h)', 'Sim. Unt. (55 mm/h)', 'Sim. Unt. (30 mm/h)']
+    obs_intens = ['Obs. Ster. (135 mm/h)', 'Obs. Ster. (55 mm/h)', 'Obs. Ster. (30 mm/h)',
+                   'Obs. Unt. (135 mm/h)', 'Obs. Unt. (55 mm/h)', 'Obs. Unt. (30 mm/h)']
+
+    color_sequence = ['#d62728', '#2ca02c', '#1f77b4',
+                      '#d62728', '#2ca02c', '#1f77b4']
+
+    filled_markers = ['d', '^', '^', 'o', 'd', '^', '^', 'o']
+
+    fig, ax1 = plt.subplots()
+
+    #  Plot data, which is in numpy array format, with:
+    c = 0
+    for i in range(1, len(data[0])):
+        if i < 4:
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1])
+            c += 1
+        else:
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[c], label=treat_intens[i - 1], linestyle='dashed')
+            c += 1
+
+    """ Lab results """
+    soil_modal = ['Sterile', 'Untreated',
+                  'Ster. Aged', 'Untr. Aged']
+
+    time = np.array([6, 12, 30, 30])  # Minutes
+
+    ax1.plot(time[0], obs_sol_sterile[0], color_sequence[0], marker='o', linestyle='None', label=obs_intens[0])
+    ax1.plot(time[1], obs_sol_sterile[1], color_sequence[1], marker='o', linestyle='None', label=obs_intens[1])
+    ax1.plot(time[2], obs_sol_sterile[2], color_sequence[1], marker='o', linestyle='None')
+    ax1.plot(time[3], obs_sol_sterile[3], color_sequence[2], marker='o', linestyle='None', label=obs_intens[2])
+
+    ax1.plot(time[0], obs_sol_untreat[0], color_sequence[0], marker='v', linestyle='None', label=obs_intens[3])
+    ax1.plot(time[1], obs_sol_untreat[1], color_sequence[1], marker='v', linestyle='None', label=obs_intens[4])
+    ax1.plot(time[2], obs_sol_untreat[2], color_sequence[1], marker='v', linestyle='None')
+    ax1.plot(time[3], obs_sol_untreat[3], color_sequence[2], marker='v', linestyle='None', label=obs_intens[5])
+
+
+    # plt.axis((0, 30, 0, 400))
+    # Update the limits using set_xlim and set_ylim
+    add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
+
+    ax1.set_xlabel('Time (min)')
+    ax1.set_ylabel('mu.g')
+    plt.title(title)
+
+    plt.legend(loc='upper left')
+    plt.show()
 
 
 def pestiplot_inst(data, obs_sol_sterile, obs_sol_untreat, title):
