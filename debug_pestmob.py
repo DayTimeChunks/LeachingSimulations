@@ -130,7 +130,7 @@ Kd_mexyl = [Kd_mexylA_crop_sterile, Kd_mexylA_crop_untreat,
 mx_ini_sterile_list = [1496.75, 1440.72, 1047.95, 1462.08,  # 0 days
                        1127.52, 1267.11, 994.09, 1050.48]  # 10 days
 
-mx_ini_untreat_list = [1222.86, 1211.28, 751.13, 979.82,  # 0 days
+mx_ini_untreat_list = [1222.86, 1211.28, 751.13, 979.82,  # 0 days, high6, med12, med30, low30
                        1006.54, 1025.43, 938.23, 830.68]  # 10 days
 
 mx_ini_sterile = sum(mx_ini_sterile_list) / len(mx_ini_sterile_list)

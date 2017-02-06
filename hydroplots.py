@@ -99,6 +99,95 @@ def hydroplot(data,
     plt.title(title)
     plt.show()
 
+def hydroplot2(
+        data,
+        y1, y2, y3, y4,
+        obs_high_6min,
+        obs_med_12min, obs_med_30min,
+        obs_low_30min,
+        title,
+        AGED = False):
+    """
+    :param data: see: leach_hydrology.py. Need to ensure data
+    data[:, 0] = time
+    data[:, 1] = cum infiltration (135 mm/h)
+    data[:, 2] = cum infiltration (55 mm/h)
+    data[:, 3] = cum infiltration (30 mm/h)
+    data[:, 4] = cum leached (135 mm/h)
+    data[:, 5] = cum leached (55 mm/h)
+    data[:, 6] = cum leached (30 mm/h)
+
+    :return:
+    Plot with cumu. inf. and cum. leached volumes [mL]
+    """
+    sns.set(style="whitegrid")
+
+    y_var = [y1, y2, y3, y4]
+
+    color_sequence = ['#d62728', 'darkviolet', '#2ca02c', '#1f77b4',  # red, green, blue
+                      '#d62728', 'darkviolet', '#2ca02c', '#1f77b4']  # red, green, blue
+
+    # Convert from mm3 to cm3 all volume hydro data.
+    fig, ax1 = plt.subplots()
+    ax1.plot(data[:, 0], data[:, 1]/10**3, color_sequence[0], linestyle='dashed', label=y_var[1 - 1])
+    ax1.plot(data[:, 0], data[:, 2]/10**3, color_sequence[1], linestyle='dashed', label=y_var[2 - 1])
+    ax1.plot(data[:, 0], data[:, 3]/10**3, color_sequence[2], linestyle='dashed', label=y_var[3 - 1])
+    ax1.plot(data[:, 0], data[:, 4]/10 ** 3, color_sequence[3], linestyle='dashed', label=y_var[4 - 1])
+
+    """ Lab results """
+
+    soil_modal = ['Sterile Fresh', 'Live Fresh',
+                  'Ster. Aged', 'Live Aged']
+    # Minutes
+    # [sterile, untreat, sterile_aged, untreat_aged]
+    six1 = np.array([5.8])
+    six = np.array([6.1])
+
+    twelve1 = np.array([11.8])
+    twelve = np.array([12.1])
+
+    thirty1 = np.array([29.8])
+    thirty = np.array([30])
+
+    if not AGED:
+        ax1.plot(six, obs_high_6min[0], color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+        ax1.plot(six, obs_high_6min[1], color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+
+        ax1.plot(twelve, obs_med_12min[0], color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
+        ax1.plot(twelve, obs_med_12min[1], color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
+
+        ax1.plot(thirty, obs_med_30min[0], color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+        ax1.plot(thirty1, obs_med_30min[1], color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+
+        ax1.plot(thirty, obs_low_30min[0], color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+        ax1.plot(thirty1, obs_low_30min[1], color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+    else:
+        ax1.plot(six1, obs_high_6min[2], color='#d62728', marker='^', linestyle='None', label=soil_modal[2])
+        ax1.plot(six1, obs_high_6min[3], color='#d62728', marker='s', linestyle='None', label=soil_modal[3])
+
+        ax1.plot(twelve1, obs_med_12min[2], color='darkviolet', marker='^', linestyle='None', label=soil_modal[2])
+        ax1.plot(twelve1, obs_med_12min[3], color='darkviolet', marker='s', linestyle='None', label=soil_modal[3])
+
+        ax1.plot(thirty, obs_med_30min[2], color='#2ca02c', marker='^', linestyle='None', label=soil_modal[2])
+        ax1.plot(thirty1, obs_med_30min[3], color='#2ca02c', marker='s', linestyle='None', label=soil_modal[3])
+
+        ax1.plot(thirty, obs_low_30min[2], color='#1f77b4', marker='^', linestyle='None', label=soil_modal[2])
+        ax1.plot(thirty1, obs_low_30min[3], color='#1f77b4', marker='s', linestyle='None', label=soil_modal[3])
+
+    add_margin(ax1, x=0.01, y=0.01)
+
+    ax1.set_xlabel('Time (min)')
+    ax1.set_ylabel('Volume (mL)')
+
+    plt.legend(loc='upper left', fancybox=True, framealpha=0.7)
+    # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+    # plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    # fig.subplots_adjust(right=0.7)
+    if AGED:
+        plt.title(title + " (Aged)")
+    else:
+        plt.title(title + " (Fresh)")
+    plt.show()
 
 def pestiplot_all(data,
                   obs_high_6min,
@@ -183,6 +272,117 @@ def pestiplot_all(data,
     plt.show()
 
 
+def pestiplot_condition(
+        data,
+        pest_dict,
+        pest_name,
+        soil_type,
+        LEACH = True,
+        STERILE = True
+):
+    """
+
+    :param data:
+        np.array with [time,
+                        fresh_high, aged_high,
+                        fresh_med12, aged_med12..
+    :param pest_dict:
+    :param pest_name:
+    :param soil_type:
+    :param LEACH:
+    :param STERILE:
+    :return:
+    """
+
+    sns.set(style="whitegrid")
+
+    treat_intens = ['Fresh (135 mm/h)', 'Aged (135 mm/h)',
+                    'Fresh - A (55 mm/h)', 'Aged - A (55 mm/h)',
+                    'Fresh - B (55 mm/h)', 'Aged - B (55 mm/h)',
+                    'Fresh (30 mm/h)', 'Aged (30 mm/h)'
+                    ]
+
+    obs_intens = ['Obs. Ster. (135 mm/h)', 'Obs. Ster. (55 mm/h)', 'Obs. Ster. (30 mm/h)',
+                  'Obs. Unt. (135 mm/h)', 'Obs. Unt. (55 mm/h)', 'Obs. Unt. (30 mm/h)']
+
+    color_sequence = ['#d62728', '#d62728',
+                      'darkviolet', 'darkviolet',
+                      '#2ca02c', '#2ca02c',
+                      '#1f77b4', '#1f77b4']
+
+    fig, ax1 = plt.subplots()
+
+    #  Plot data, which is in numpy array format, with:
+    for i in range(1, len(data[0])):
+        if i % 2 != 0:
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1])
+        else:
+            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
+
+
+    """ Lab results """
+    soil_modal = ['Fresh', 'Aged']
+
+    six = np.array([6])
+    twelve = np.array([12])
+    thirty = np.array([30])
+
+    six1 = np.array([5.8])
+    twelve1 = np.array([11.8])
+    thirty1 = np.array([29.8])
+
+    if LEACH:
+        dict_index = 1
+    else:
+        dict_index = 2
+
+    ax1.plot(six, float(pest_dict['high_0d'][dict_index]), color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six1, float(pest_dict['high_1d'][dict_index]), color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(twelve, float(pest_dict['med12_0d'][dict_index]), color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve1, float(pest_dict['med12_1d'][dict_index]), color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(thirty, float(pest_dict['med30_0d'][dict_index]), color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, float(pest_dict['med30_1d'][dict_index]), color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(thirty, float(pest_dict['low_0d'][dict_index]), color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, float(pest_dict['low_1d'][dict_index]), color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+
+    # plt.axis((0, 30, 0, 400))
+    # Update the limits using set_xlim and set_ylim
+    add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
+
+    ax1.set_xlabel('Time (min)')
+    ax1.set_ylabel(pest_name + ' [' + r'$\mu$' + 'g]')
+
+    if LEACH and STERILE:
+        plt.title('Leached mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Sterile)')
+    elif LEACH and not STERILE:
+        plt.title('Leached mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Living)')
+    elif not LEACH and STERILE:
+        plt.title('Ponded mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Sterile)')
+    elif not LEACH and not STERILE:
+        plt.title('Ponded mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Living)')
+    else:
+        print("Title error")
+
+    plt.legend(loc='upper left', fancybox=True, framealpha=0.8)
+    plt.show()
+
+
+def stackdata28(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o, p,
+                q, r, s, t,
+                u, v, w, x,
+                y, z, aa, ab):
+    data = np.column_stack((time,
+                            a, b, c, d, e, f, g, h, i, j, k, l, m, n,
+                            o, p, q, r, s, t, u, v, w, x, y, z, aa, ab))
+    return data
+
 def stackdata21(time,
                 a, b, c, d,
                 e, f, g, h,
@@ -204,6 +404,15 @@ def stackdata18(time,
     return data
 
 
+def stackdata16(time,
+                a, b, c, d,
+                e, f, g, h,
+                i, j, k, l,
+                m, n, o, p):
+    data = np.column_stack((time, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p))
+    return data
+
+
 def stackdata15(time,
                 a, b, c, d,
                 e, f, g, h,
@@ -218,10 +427,18 @@ def stackdata9(time, l1, l2, l3, l4, l5, l6, l7, l8, l9):
     return data
 
 
+def stackdata8(time, l1, l2, l3, l4, l5, l6, l7, l8):
+    data = np.column_stack((time, l1, l2, l3, l4, l5, l6, l7, l8))
+    return data
+
 def stackdata6(time, l1, l2, l3, l4, l5, l6):
     data = np.column_stack((time, l1, l2, l3, l4, l5, l6))
     return data
 
+
+def stackdata4(time, a, b, c, d):
+    data = np.column_stack((time, a, b, c, d))
+    return data
 
 def stackdata3(time, a, b, c):
     data = np.column_stack((time, a, b, c))

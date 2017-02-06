@@ -85,7 +85,7 @@ def greenampt(ksat, wfs, dtga, intensity, ovsat, ov, zl, cum_infilt, cum_time):
                 # print("F2 at false inter-ponding 2: ", F2)
             else:
                 # Calculate F2 iteratively again, but with F1 being updated until ponding occurs
-                print("G&A ponding during time step, with tp size:", tp, "at t=", cum_time)
+                # print("G&A ponding during time step, with tp size:", tp, "at t=", cum_time)
                 time_size = tp
                 # TestCondition = 3
                 F1 = F1 + intensity * tp
