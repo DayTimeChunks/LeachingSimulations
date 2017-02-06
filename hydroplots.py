@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import mpld3
+from mpld3 import plugins
 sns.set_context(rc={'lines.markeredgewidth': 0.1})
 
 
@@ -277,6 +279,7 @@ def pestiplot_condition(
         pest_dict,
         pest_name,
         soil_type,
+        cycle,
         LEACH = True,
         STERILE = True
 ):
@@ -327,9 +330,9 @@ def pestiplot_condition(
     twelve = np.array([12])
     thirty = np.array([30])
 
-    six1 = np.array([5.8])
-    twelve1 = np.array([11.8])
-    thirty1 = np.array([29.8])
+    six1 = np.array([5.9])
+    twelve1 = np.array([11.9])
+    thirty1 = np.array([29.9])
 
     if LEACH:
         dict_index = 1
@@ -348,6 +351,11 @@ def pestiplot_condition(
     ax1.plot(thirty, float(pest_dict['low_0d'][dict_index]), color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
     ax1.plot(thirty1, float(pest_dict['low_1d'][dict_index]), color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
 
+    # x_values = [six, six, twelve, twelve, twelve, twelve, thirty, thirty]
+    # y_values = []
+    # for index, (name, (mass_i, leach_obs, pond_obs)) in enumerate(pest_dict.items()):
+    #     y_values.append(leach_obs)
+
     # plt.axis((0, 30, 0, 400))
     # Update the limits using set_xlim and set_ylim
     add_margin(ax1, x=0.01, y=0.01)  # Call this after plt.subbplot
@@ -356,16 +364,17 @@ def pestiplot_condition(
     ax1.set_ylabel(pest_name + ' [' + r'$\mu$' + 'g]')
 
     if LEACH and STERILE:
-        plt.title('Leached mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Sterile)')
+        plt.title('Leached mass, ' + pest_name + ' ' + cycle + ' ' + soil_type + ' (Sterile)')
     elif LEACH and not STERILE:
-        plt.title('Leached mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Living)')
+        plt.title('Leached mass, ' + pest_name + ' ' + cycle + ' ' + soil_type + ' (Living)')
     elif not LEACH and STERILE:
-        plt.title('Ponded mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Sterile)')
+        plt.title('Ponded mass, ' + pest_name + ' ' + cycle + ' ' + soil_type + ' (Sterile)')
     elif not LEACH and not STERILE:
-        plt.title('Ponded mass, ' + pest_name + ' - 2nd pulse ' + soil_type + ' (Living)')
+        plt.title('Ponded mass, ' + pest_name + ' ' + cycle + ' ' + soil_type + ' (Living)')
     else:
         print("Title error")
 
+    # fig.plugins = [plugins.PointLabelTooltip(x_values, y_values)]
     plt.legend(loc='upper left', fancybox=True, framealpha=0.8)
     plt.show()
 
