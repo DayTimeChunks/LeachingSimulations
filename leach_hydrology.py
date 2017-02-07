@@ -368,10 +368,11 @@ def leachsim2(
             else:
                 continue
     print(mass_bal_1, mass_bal_2, mass_bal_3, mass_bal_4)
-    print("ksat high: ", k_high,
-          "ksat med12: ", k_med12,
-          "ksat med30: ", k_med30,
-          "ksat low: ", k_low)
+    print("ksat high: ", k_high)
+    print("ksat med12: ", k_med12)
+    print("ksat med30: ", k_med30)
+    print("ksat low: ", k_low)
+
     # Data in mm3
     return stackdata28(cum_time_30min,
                        leach_6min, leach_med_12min, leach_med_30min, leach_low_30min,

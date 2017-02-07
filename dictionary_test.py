@@ -64,7 +64,7 @@ time_sizes2 = [time_size_135mmh, time_size_55mmh, time_size_30mmh]
 
 #  Dictionary contains:
 #  Scenario: (initial_mas, leached_mass_observed, ponded_mass_obs)
-mx_dict_S = {
+pest_dict_S = {
     'highS0d': (1496.75, 8.35, 5.7),
     'highS1d': (1127.52, 37.57, 4.1),
     'med12S0d': (1440.72, 290.3, 0.),
@@ -75,7 +75,7 @@ mx_dict_S = {
     'lowS1d': (1050.48, 0., 12.4)
 }
 
-mx_dict_L = {
+pest_dict_L = {
     'highL0d': (1222.86, 175.44, 4.7),
     'highL1d': (1006.54, 40.03, 3.2),
     'med12L0d': (1211.28, 272.5, 1.8),
@@ -136,34 +136,35 @@ print(sterile_sim[:, 1])
 cum_time_30min = sterile_sim[:, 0]
 
 # Cumulative leachate sterilized
-high_0d_cum_mass_out_dt = sterile_sim[:, 1]
-high_1d_cum_mass_out_dt = sterile_sim[:, 2]
+a_high_0d_cum_mass_out_dt = sterile_sim[:, 1]
+b_high_1d_cum_mass_out_dt = sterile_sim[:, 2]
 
-med12_0d_cum_mass_out_dt = sterile_sim[:, 3]
-med12_1d_cum_mass_out_dt = sterile_sim[:, 4]
+c_med12_0d_cum_mass_out_dt = sterile_sim[:, 3]
+d_med12_1d_cum_mass_out_dt = sterile_sim[:, 4]
 
-med30_0d_cum_mass_out_dt = sterile_sim[:, 5]
-med30_1d_cum_mass_out_dt = sterile_sim[:, 6]
+e_med30_0d_cum_mass_out_dt = sterile_sim[:, 5]
+f_med30_1d_cum_mass_out_dt = sterile_sim[:, 6]
 
-low_0d_cum_mass_out_dt = sterile_sim[:, 7]
-low_1d_cum_mass_out_dt = sterile_sim[:, 8]
+g_low_0d_cum_mass_out_dt = sterile_sim[:, 7]
+h_h_low_1d_cum_mass_out_dt = sterile_sim[:, 8]
 
 # Ponded mass
-high_0d_overmass_dt = sterile_sim[:, 9]
-high_1d_overmass_dt = sterile_sim[:, 10]
-med12_0d_overmass_dt = sterile_sim[:, 11]
-med12_1d_overmass_dt = sterile_sim[:, 12]
+a_high_0d_overmass_dt = sterile_sim[:, 9]
+b_high_1d_overmass_dt = sterile_sim[:, 10]
+c_med12_0d_overmass_dt = sterile_sim[:, 11]
+d_med12_1d_overmass_dt = sterile_sim[:, 12]
 
-med30_0d_overmass_dt = sterile_sim[:, 13]
-med30_1d_overmass_dt = sterile_sim[:, 14]
-low_0d_overmass_dt = sterile_sim[:, 15]
-low_1d_overmass_dt = sterile_sim[:, 16]
+e_med30_0d_overmass_dt = sterile_sim[:, 13]
+f_med30_1d_overmass_dt = sterile_sim[:, 14]
+g_low_0d_overmass_dt = sterile_sim[:, 15]
+h_h_low_1d_overmass_dt = sterile_sim[:, 16]
 
 mass_percol2 = stackdata8(cum_time_30min,
-                          high_0d_cum_mass_out_dt, high_1d_cum_mass_out_dt,
-                          med12_0d_cum_mass_out_dt, med12_1d_cum_mass_out_dt,
-                          med30_0d_cum_mass_out_dt, med30_1d_cum_mass_out_dt,
-                          low_0d_cum_mass_out_dt, low_1d_cum_mass_out_dt)
+                          a_high_0d_cum_mass_out_dt, b_high_1d_cum_mass_out_dt,
+                          c_med12_0d_cum_mass_out_dt, d_med12_1d_cum_mass_out_dt,
+                          e_med30_0d_cum_mass_out_dt, f_med30_1d_cum_mass_out_dt,
+                          g_low_0d_cum_mass_out_dt, h_h_low_1d_cum_mass_out_dt)
+
 
 
 

@@ -299,10 +299,10 @@ def pestiplot_condition(
 
     sns.set(style="whitegrid")
 
-    treat_intens = ['Fresh (135 mm/h)', 'Aged (135 mm/h)',
-                    'Fresh - A (55 mm/h)', 'Aged - A (55 mm/h)',
-                    'Fresh - B (55 mm/h)', 'Aged - B (55 mm/h)',
-                    'Fresh (30 mm/h)', 'Aged (30 mm/h)'
+    treat_intens = ['Fresh (135 mm/h) - A', 'Aged (135 mm/h) - A',
+                    'Fresh (55 mm/h) - B', 'Aged - A (55 mm/h) - B',
+                    'Fresh (55 mm/h) - C', 'Aged - B (55 mm/h) - C',
+                    'Fresh (30 mm/h) - D', 'Aged (30 mm/h) - D'
                     ]
 
     obs_intens = ['Obs. Ster. (135 mm/h)', 'Obs. Ster. (55 mm/h)', 'Obs. Ster. (30 mm/h)',
@@ -339,17 +339,17 @@ def pestiplot_condition(
     else:
         dict_index = 2
 
-    ax1.plot(six, float(pest_dict['high_0d'][dict_index]), color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(six1, float(pest_dict['high_1d'][dict_index]), color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(six, float(pest_dict['a_high_0d'][dict_index]), color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six1, float(pest_dict['b_high_1d'][dict_index]), color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
 
-    ax1.plot(twelve, float(pest_dict['med12_0d'][dict_index]), color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(twelve1, float(pest_dict['med12_1d'][dict_index]), color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(twelve, float(pest_dict['c_med12_0d'][dict_index]), color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve1, float(pest_dict['d_med12_1d'][dict_index]), color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
 
-    ax1.plot(thirty, float(pest_dict['med30_0d'][dict_index]), color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(thirty1, float(pest_dict['med30_1d'][dict_index]), color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(thirty, float(pest_dict['e_med30_0d'][dict_index]), color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, float(pest_dict['f_med30_1d'][dict_index]), color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
 
-    ax1.plot(thirty, float(pest_dict['low_0d'][dict_index]), color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(thirty1, float(pest_dict['low_1d'][dict_index]), color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(thirty, float(pest_dict['g_low_0d'][dict_index]), color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, float(pest_dict['h_low_1d'][dict_index]), color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
 
     # x_values = [six, six, twelve, twelve, twelve, twelve, thirty, thirty]
     # y_values = []
