@@ -628,7 +628,7 @@ def pest_test2(Kd,  # Kd list range to test
 
 def pest_test3(Kd,  # Kd list range to test
                pest_dict,  # Initial mass and observed data
-               pb,
+               pb_i, pb_f,
                ov_sat,
                percol_data_fresh, percol_data_aged,
                pond_data_fresh, pond_data_aged,
@@ -636,7 +636,8 @@ def pest_test3(Kd,  # Kd list range to test
                area, soil_height,
                d, runoffvelocity,
                KFILM=True,
-               first_cycle = True):
+               first_cycle = True,
+               living = True):
     """
     This function takes 8 hydrological time series,
     based optimal Ksat values.
@@ -670,7 +671,7 @@ def pest_test3(Kd,  # Kd list range to test
     max_mass = 0
     sum_mass = 0
     masses = 0
-    for index, (name, (mass_i, leach_obs, pond_obs)) in enumerate(sorted(pest_dict.items())):
+    for index, (name, (mass_i, leach_obs, pond_obs, initial_mass_error, leach_error, pond_error)) in enumerate(sorted(pest_dict.items())):
         # print (index, (name, (mass_i, leach_obs, pond_obs)))
 
         if float(leach_obs) > 0.:
@@ -684,7 +685,7 @@ def pest_test3(Kd,  # Kd list range to test
     mean_mass = sum_mass/masses
 
     SStot = 0
-    for index, (name, (mass_i, leach_obs, pond_obs)) in enumerate(pest_dict.items()):
+    for index, (name, (mass_i, leach_obs, pond_obs, initial_mass_error, leach_error, pond_error)) in enumerate(pest_dict.items()):
         if float(leach_obs) > 0:
             SStot += (float(leach_obs) - mean_mass)**2
         else:
@@ -747,37 +748,22 @@ def pest_test3(Kd,  # Kd list range to test
     # infil_30mmh = infil_data[:, 3]
     # infil_vol = [infil_135mmh, infil_55mmh, infil_30mmh]  # cm3
 
-    """ Cummualtive Output series """
-    highint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
-    medint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
-    lowint_cum_mass_st_out_dt = [0.0] * len(cum_time_30min)
-
-    highint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
-    medint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
-    lowint_cum_mass_un_out_dt = [0.0] * len(cum_time_30min)
-
-    """ Output series """
-    highint_mass_st_out_dt = [0.0] * len(cum_time_30min)
-    medint_mass_st_out_dt = [0.0] * len(cum_time_30min)
-    lowint_mass_st_out_dt = [0.0] * len(cum_time_30min)
-
-    highint_mass_un_out_dt = [0.0] * len(cum_time_30min)
-    medint_mass_un_out_dt = [0.0] * len(cum_time_30min)
-    lowint_mass_un_out_dt = [0.0] * len(cum_time_30min)
-
     # Check best Kd fit from selected range
     error = 10 ** 9  # define a max error
     for k in range(len(Kd)):
-        r_factor = 1 + (pb * Kd[k]) / ov_sat
+        r_factor = 1 + (pb_i * Kd[k]) / ov_sat
         K_L = kfilm(d, runoffvelocity)  # mm/min
 
         #  for index, (name, (mass_i, leach_obs, pond_obs)) in enumerate(pest_dict.iteritems()): # python 2.7
-        for index, (name, (mass_i, leach_obs, pond_obs)) in enumerate(sorted(pest_dict.items())):  # python 3.
+        for index, (name, (mass_i, leach_obs, pond_obs, initial_mass_error, leach_error, pond_error)) \
+                in enumerate(sorted(pest_dict.items())):  # python 3.
+            # print("Enumerate, sorted: ")
+            # print(index, (name, (mass_i, leach_obs, pond_obs)))
 
             mass_tot = mass_i
             # Whelan et al. 1987 (p4.9)
             conc_soil_old = \
-                ((mass_tot / soil_m) * pb * Kd[k]) / (ov_sat + pb * Kd[k])  # ug/g
+                ((mass_tot / soil_m) * pb_i * Kd[k]) / (ov_sat + pb_i * Kd[k])  # ug/g
             conc_liq_old = conc_soil_old / Kd[k]  # ug/mm3
 
             # Leaching
@@ -791,9 +777,15 @@ def pest_test3(Kd,  # Kd list range to test
             mass_overflow_dt = []  # non cumulative as final value is total value
 
             #  Compute leaching for each time step under scenario of "index"
+            hasleached = 0
             for t in range(len(cum_time_30min)):
-                # TODO: Update r_factor, based on changing pb to max pb of: 
-                #
+                # Update r_factor, based on increasing pb.
+                if leached_vol[index][t] > 0:
+                    hasleached += 1
+                if hasleached > 12:
+                    pb_i = pb_f
+                    r_factor = 1 + (pb_f * Kd[k]) / ov_sat
+
                 # McGrath leaching loss:
                 conc_liq_new = conc_liq_old * exp(-(leached_vol[index][t]) / (r_factor * vol_h2o_sat))
                 # ug/mm3 * exp(- mm3/[-]*mm3) = ug/mm3
@@ -842,7 +834,7 @@ def pest_test3(Kd,  # Kd list range to test
 
                 # re-equilibrate
                 mass_tot_new = mass_tot - mass_out
-                conc_soil_old = (((mass_tot_new - mass_in_overflow) / soil_m) * pb * Kd[k]) / (ov_sat + pb * Kd[k])
+                conc_soil_old = (((mass_tot_new - mass_in_overflow) / soil_m) * pb_i * Kd[k]) / (ov_sat + pb_i * Kd[k])
                 conc_liq_old = conc_soil_old / Kd[k]
                 mass_tot = mass_tot_new
 
@@ -855,35 +847,41 @@ def pest_test3(Kd,  # Kd list range to test
                     try:
                         high_fresh_error = (cum_mass_out_dt[5] - leach_obs) ** 2
                         SS0 = (leach_obs - cum_mass_out_dt[5]) ** 2
+                        # high_fresh_error_prc = ((cum_mass_out_dt[5] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             high_fresh_error = (cum_mass_out_dt[5] - pond_obs) ** 2
                             SS0 = 0.
+
                         except TypeError:
                             high_fresh_error = 0.
                             SS0 = 0.
+
 
                 temp_out_high_0d = mass_out_dt
                 temp_cum_out_high_0d = cum_mass_out_dt
                 temp_overflow_high_0d = mass_overflow_dt
 
-            # high int, 6 min; 0 days, living. Scenario A2 - h6L0d
             elif index == 1:
                 try:
                     high_aged_error = (cum_mass_out_dt[5] - leach_obs) ** 2 + \
                                     (mass_overflow_dt[5] - pond_obs) ** 2
                     SS1 = (leach_obs - cum_mass_out_dt[5]) ** 2
+
                 except TypeError:
                     try:
                         high_aged_error = (cum_mass_out_dt[5] - leach_obs) ** 2
                         SS1 = (leach_obs - cum_mass_out_dt[5]) ** 2
+                        # high_aged_error_prc = ((cum_mass_out_dt[5] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             high_aged_error = (mass_overflow_dt[5] - pond_obs) ** 2
                             SS1 = 0.
+                            # high_aged_error_prc = 0.
                         except TypeError:
                             high_aged_error = 0.
                             SS1 = 0.
+                            # high_aged_error_prc = 0.
 
                 temp_out_high_1d = mass_out_dt
                 temp_cum_out_high_1d = cum_mass_out_dt
@@ -894,17 +892,21 @@ def pest_test3(Kd,  # Kd list range to test
                     med12_fresh_error = (cum_mass_out_dt[11] - leach_obs) ** 2 + \
                                         (mass_overflow_dt[11] - pond_obs) ** 2
                     SS2 = (leach_obs - cum_mass_out_dt[11]) ** 2
+
                 except TypeError:
                     try:
                         med12_fresh_error = (cum_mass_out_dt[11] - leach_obs) ** 2
                         SS2 = (leach_obs - cum_mass_out_dt[11]) ** 2
+                        # med12_fresh_error_prc = ((cum_mass_out_dt[11] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             med12_fresh_error = (mass_overflow_dt[11] - pond_obs) ** 2
                             SS2 = 0.
+                            # med12_fresh_error_prc = 0
                         except TypeError:
                             med12_fresh_error = 0.
                             SS2 = 0.
+                            # med12_fresh_error_prc = 0
 
                 temp_out_med12_0d = mass_out_dt
                 temp_cum_out_med12_0d = cum_mass_out_dt
@@ -915,17 +917,24 @@ def pest_test3(Kd,  # Kd list range to test
                     med12_aged__error = (cum_mass_out_dt[11] - leach_obs) ** 2 + \
                                         (mass_overflow_dt[11] - pond_obs) ** 2
                     SS3 = (leach_obs - cum_mass_out_dt[11]) ** 2
+
                 except TypeError:
                     try:
                         med12_aged__error = (cum_mass_out_dt[11] - leach_obs) ** 2
                         SS3 = (leach_obs - cum_mass_out_dt[11]) ** 2
+                        # med12_aged__error_prc = ((cum_mass_out_dt[11] - leach_obs) / leach_obs) * 100
+                        # print("Index:", index)
+                        # print("Pest dict: ", pest_dict['d_med12_1d'][1])
+                        # print("SS3: ", cum_mass_out_dt[11], leach_obs)
                     except TypeError:
                         try:
                             med12_aged__error = (mass_overflow_dt[11] - pond_obs) ** 2
                             SS3 = 0.
+                            # med12_aged__error_prc = 0.
                         except TypeError:
                             med12_aged__error = 0
                             SS3 = 0.
+                            # med12_aged__error_prc = 0.
 
                 temp_out_med12_1d = mass_out_dt
                 temp_cum_out_med12_1d = cum_mass_out_dt
@@ -940,13 +949,16 @@ def pest_test3(Kd,  # Kd list range to test
                     try:
                         med30_fresh__error = (cum_mass_out_dt[-1] - leach_obs) ** 2
                         SS4 = (leach_obs - cum_mass_out_dt[-1])**2
+                        # med30_fresh__error_prc = ((cum_mass_out_dt[-1] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             med30_fresh__error = (mass_overflow_dt[-1] - pond_obs) ** 2
                             SS4 = 0.
+                            # med30_fresh__error_prc = 0.
                         except TypeError:
                             med30_fresh__error = 0
                             SS4 = 0.
+                            # med30_fresh__error_prc = 0.
 
                 temp_out_med30_0d = mass_out_dt
                 temp_cum_out_med30_0d = cum_mass_out_dt
@@ -957,17 +969,21 @@ def pest_test3(Kd,  # Kd list range to test
                     med30_aged__error = (cum_mass_out_dt[-1] - leach_obs) ** 2 + \
                                   (mass_overflow_dt[-1] - pond_obs) ** 2
                     SS5 = (leach_obs - cum_mass_out_dt[-1])**2
+
                 except TypeError:
                     try:
                         med30_aged__error = (cum_mass_out_dt[-1] - leach_obs) ** 2
                         SS5 = (cum_mass_out_dt[-1] - leach_obs)**2
+                        # med30_aged__error_prc = ((cum_mass_out_dt[-1] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             med30_aged__error = (mass_overflow_dt[-1] - pond_obs) ** 2
                             SS5 = 0.
+                            # med30_aged__error_prc = 0.
                         except TypeError:
                             med30_aged__error = 0.
                             SS5 = 0.
+                            # med30_aged__error_prc = 0.
 
                 temp_out_med30_1d = mass_out_dt
                 temp_cum_out_med30_1d = cum_mass_out_dt
@@ -978,23 +994,26 @@ def pest_test3(Kd,  # Kd list range to test
                     low_fresh__error = (cum_mass_out_dt[-1] - leach_obs) ** 2 + \
                                 (mass_overflow_dt[-1] - pond_obs) ** 2
                     SS6 = (cum_mass_out_dt[-1] - leach_obs) ** 2
+
                 except TypeError:
                     try:
                         low_fresh__error = (cum_mass_out_dt[-1] - leach_obs) ** 2
                         SS6 = (cum_mass_out_dt[-1] - leach_obs) ** 2
+                        # low_fresh__error_prc = ((cum_mass_out_dt[-1] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             low_fresh__error = (mass_overflow_dt[-1] - pond_obs) ** 2
                             SS6 = 0.
+                            # low_fresh__error_prc = 0.
                         except TypeError:
                             low_fresh__error = 0.
                             SS6 = 0.
+                            # low_fresh__error_prc = 0.
 
                 temp_out_low_0d = mass_out_dt
                 temp_cum_out_low_0d = cum_mass_out_dt
                 temp_overflow_low_0d = mass_overflow_dt
             elif index == 7:
-                # print("SS7: ", cum_mass_out_dt[-1], leach_obs)
                 try:
                     low_aged__error = (cum_mass_out_dt[-1] - leach_obs) ** 2 + \
                                 (mass_overflow_dt[-1] - pond_obs) ** 2
@@ -1003,13 +1022,16 @@ def pest_test3(Kd,  # Kd list range to test
                     try:
                         low_aged__error = (cum_mass_out_dt[-1] - leach_obs) ** 2
                         SS7 = (cum_mass_out_dt[-1] - leach_obs) ** 2
+                        # low_aged__error_prc = ((cum_mass_out_dt[-1] - leach_obs) / leach_obs) * 100
                     except TypeError:
                         try:
                             low_aged__error = (mass_overflow_dt[-1] - pond_obs)
                             SS7 = 0.
+                            # low_aged__error_prc = 0.
                         except TypeError:
                             low_aged__error = 0.
                             SS7 = 0.
+                            # low_aged__error_prc = 0.
 
                 temp_out_low_1d = mass_out_dt
                 temp_cum_out_low_1d = cum_mass_out_dt
@@ -1022,8 +1044,12 @@ def pest_test3(Kd,  # Kd list range to test
                         med30_fresh__error + med30_aged__error +
                         low_fresh__error + low_aged__error) / 8.0) ** 0.5)/(max_mass - min_mass)
 
-        if error_test < error:
-            error = error_test
+        SS_test = SS0 + SS1 + SS2 + SS3 + SS4 + SS5 + SS6 + SS7
+
+        # if error_test < error:
+        if SS_test < error:
+            # error = error_test
+            error = SS_test
             SSres = SS0 + SS1 + SS2 + SS3 + SS4 + SS5 + SS6 + SS7
             r_squared = 1 - (SSres/SStot)
             kd_chosen = Kd[k]
@@ -1034,13 +1060,52 @@ def pest_test3(Kd,  # Kd list range to test
 
             # a) Cumulative mass leached
             high_fresh_cum_mass_out_dt = temp_cum_out_high_0d
+            try:
+                high_fresh_error_prc = ((high_fresh_cum_mass_out_dt[5] - pest_dict['a_high_0d'][1]) / pest_dict['a_high_0d'][1]) * 100
+            except TypeError:
+                high_fresh_error_prc = "No obs | < LD "
+
             high_aged_cum_mass_out_dt = temp_cum_out_high_1d
+            try:
+                high_aged_error_prc = ((high_aged_cum_mass_out_dt[5] - pest_dict['b_high_1d'][1]) / pest_dict['b_high_1d'][1]) * 100
+            except TypeError:
+                high_aged_error_prc = "No obs | < LD "
+
             med12_fresh_cum_mass_out_dt = temp_cum_out_med12_0d
+            try:
+                med12_fresh_error_prc = ((med12_fresh_cum_mass_out_dt[11] - pest_dict['c_med12_0d'][1]) / pest_dict['c_med12_0d'][1]) * 100
+            except TypeError:
+                med12_fresh_error_prc = "No obs | < LD "
+
             med12_aged_cum_mass_out_dt = temp_cum_out_med12_1d
+            try:
+                med12_aged__error_prc = ((med12_aged_cum_mass_out_dt[11] - pest_dict['d_med12_1d'][1]) / pest_dict['d_med12_1d'][1]) * 100
+            except TypeError:
+                med12_aged__error_prc = "No obs | < LD "
+
             med30_fresh_cum_mass_out_dt = temp_cum_out_med30_0d
+            try:
+                med30_fresh__error_prc = ((med30_fresh_cum_mass_out_dt[-1] - pest_dict['e_med30_0d'][1]) / pest_dict['e_med30_0d'][1]) * 100
+            except TypeError:
+                med30_fresh__error_prc = "No obs | < LD "
+
             med30_aged_cum_mass_out_dt = temp_cum_out_med30_1d
+            try:
+                med30_aged__error_prc = ((med30_aged_cum_mass_out_dt[-1] - pest_dict['f_med30_1d'][1]) / pest_dict['f_med30_1d'][1]) * 100
+            except TypeError:
+                med30_aged__error_prc = "No obs | < LD "
+
             low_fresh_cum_mas_out_dt = temp_cum_out_low_0d
+            try:
+                low_fresh__error_prc = ((low_fresh_cum_mas_out_dt[-1] - pest_dict['g_low_0d'][1]) / pest_dict['g_low_0d'][1]) * 100
+            except TypeError:
+                low_fresh__error_prc = "No obs | < LD "
+
             low_aged_cum_mas_out_dt = temp_cum_out_low_1d
+            try:
+                low_aged__error_prc = ((low_aged_cum_mas_out_dt[-1] - pest_dict['h_low_1d'][1]) / pest_dict['h_low_1d'][1]) * 100
+            except TypeError:
+                low_aged__error_prc = "No obs | < LD "
 
             # b) Mass in ponded water
             high_fresh_overmass_dt = temp_overflow_high_0d
@@ -1055,13 +1120,39 @@ def pest_test3(Kd,  # Kd list range to test
         else:
             continue
 
-    print("Best log Kd: ", log10(kd_chosen), "( Num: ", num_kd + 1, ")", "\n",
-          "Error: ", error, ", R2: ", r_squared)
+    if first_cycle:
+        print("1st Pulse")
+    else:
+        print("2nd Pulse")
+
+    if living:
+        print("Living")
+        fom_crop_untreat = 5.51 / 100.0
+        foc = 0.58 * fom_crop_untreat
+    else:
+        print("Sterile")
+        fom_crop_sterile = 3.87 / 100.0
+        foc = 0.58 * fom_crop_sterile
+
+    print("--------------------------------------------")
+    print("Koc tested: ", np.array(Kd)/10**3/foc)  # Convert back to cm3/g
+    print("Best log Kd: ", log10(kd_chosen/10**3), "cm3/g", "( Num: ", num_kd + 1, ")", "\n",
+          "R2: ", r_squared)
+    print("Scenario - modality - Predicted error prcnt (%) | Predicted | Observed |")
+    print("--------------------------------------------")
+    print("(A) 135 mm/h - Fresh ", high_fresh_error_prc, "|", high_fresh_cum_mass_out_dt[5], "|", pest_dict['a_high_0d'][1])
+    print("(A) 135 mm/h - Aged ", high_aged_error_prc, "|", high_aged_cum_mass_out_dt[5], "|", pest_dict['b_high_1d'][1])
+    print("(B) 55 mm/h - Fresh ", med12_fresh_error_prc, "|", med12_fresh_cum_mass_out_dt[11], "|", pest_dict['c_med12_0d'][1])
+    print("(B) 55 mm/h - Aged ", med12_aged__error_prc, "|", med12_aged_cum_mass_out_dt[11], "|", pest_dict['d_med12_1d'][1])
+    print("(C) 55 mm/h - Fresh ", med30_fresh__error_prc, "|", med30_fresh_cum_mass_out_dt[-1], "|", pest_dict['e_med30_0d'][1])
+    print("(C) 55 mm/h - Aged ", med30_aged__error_prc, "|", med12_aged_cum_mass_out_dt[-1], "|", pest_dict['f_med30_1d'][1])
+    print("(D) 30 mm/h - Fresh ", low_fresh__error_prc, "|", high_fresh_cum_mass_out_dt[-1], "|", pest_dict['g_low_0d'][1])
+    print("(D) 30 mm/h - Aged ", low_aged__error_prc, "|", high_aged_cum_mass_out_dt[-1], "|", pest_dict['h_low_1d'][1])
 
     # print ("SS1 to SS7: ", SS1, SS2, SS3, SS4, SS5, SS6, SS7)
-    print ("SSres: ", SSres)
-    print ("SStot: ", SStot)
-    print("mean mass: ", mean_mass, "sum_mass:", sum_mass)
+    # print ("SSres: ", SSres)
+    # print ("SStot: ", SStot)
+    # print("mean mass: ", mean_mass, "sum_mass:", sum_mass)
 
     return stackdata16(cum_time_30min,
                        high_fresh_cum_mass_out_dt, high_aged_cum_mass_out_dt, # leached

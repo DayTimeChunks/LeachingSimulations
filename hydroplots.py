@@ -316,11 +316,27 @@ def pestiplot_condition(
     fig, ax1 = plt.subplots()
 
     #  Plot data, which is in numpy array format, with:
-    for i in range(1, len(data[0])):
-        if i % 2 != 0:
-            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1])
-        else:
-            ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
+
+    if cycle == '1st pulse':
+        pattern = 0
+        for i in range(1, len(data[0])):
+            pattern += 1
+            if i % 2 != 0 and (pattern == 3):
+                ax1.plot(data[:][:, 0], data[:][:, i]+5, color_sequence[i - 1], label=treat_intens[i - 1])
+            elif i % 2 != 0:
+                ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1])
+            elif i % 2 == 0 and (pattern == 4):
+                ax1.plot(data[:][:, 0], data[:][:, i]+5, color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
+            else:
+                ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
+    else:
+        for i in range(1, len(data[0])):
+            if i % 2 != 0:
+                ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1])
+            else:
+                ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1],
+                         linestyle='dashed')
+
 
 
     """ Lab results """
@@ -328,33 +344,57 @@ def pestiplot_condition(
 
     six = np.array([6])
     twelve = np.array([12])
-    thirty = np.array([30])
 
     six1 = np.array([5.9])
     twelve1 = np.array([11.9])
-    thirty1 = np.array([29.9])
+
+    thirty = np.array([30])
+    thirty2 = np.array([29.5])
+    thirty1 = np.array([29.6])
+    thirty3 = np.array([29.9])
 
     if LEACH:
         dict_index = 1
     else:
         dict_index = 2
 
-    ax1.plot(six, float(pest_dict['a_high_0d'][dict_index]), color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(six1, float(pest_dict['b_high_1d'][dict_index]), color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+    x_values = [six, six1, twelve, twelve1, thirty, thirty1, thirty2, thirty3]
+    y_values = []
+    y_errors = []
+    for index, (name, (mass_i, leach_obs, pond_obs, initial_mass_error, leach_error, pond_error)) in enumerate(sorted(pest_dict.items())):
+        if LEACH:
+            y_values.append(float(leach_obs))
+            # if float(leach_obs) - float(leach_error) < 0:
+            #    initial_mass_error = float(leach_error)
+            y_errors.append(float(leach_error))
+        else:
+            y_values.append(float(pond_obs))
+            y_errors.append(float(pond_error))
 
-    ax1.plot(twelve, float(pest_dict['c_med12_0d'][dict_index]), color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(twelve1, float(pest_dict['d_med12_1d'][dict_index]), color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
+    for x, y, err, color in zip(x_values, y_values, y_errors, color_sequence):
+        ax1.errorbar(x, y, err, lw=2, capsize=5, capthick=2, color=color)
 
-    ax1.plot(thirty, float(pest_dict['e_med30_0d'][dict_index]), color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(thirty1, float(pest_dict['f_med30_1d'][dict_index]), color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+        # ax1.errorbar(x_values, y_values, yerr=y_errors, linestyle='None')
 
-    ax1.plot(thirty, float(pest_dict['g_low_0d'][dict_index]), color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
-    ax1.plot(thirty1, float(pest_dict['h_low_1d'][dict_index]), color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+    ax1.plot(six, float(pest_dict['a_high_0d'][dict_index]),
+             color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six1, float(pest_dict['b_high_1d'][dict_index]),
+             color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
 
-    # x_values = [six, six, twelve, twelve, twelve, twelve, thirty, thirty]
-    # y_values = []
-    # for index, (name, (mass_i, leach_obs, pond_obs)) in enumerate(pest_dict.items()):
-    #     y_values.append(leach_obs)
+    ax1.plot(twelve, float(pest_dict['c_med12_0d'][dict_index]),
+             color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve1, float(pest_dict['d_med12_1d'][dict_index]),
+             color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(thirty, float(pest_dict['e_med30_0d'][dict_index]),
+             color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, float(pest_dict['f_med30_1d'][dict_index]),
+             color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(thirty2, float(pest_dict['g_low_0d'][dict_index]),
+             color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty3, float(pest_dict['h_low_1d'][dict_index]),
+             color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
 
     # plt.axis((0, 30, 0, 400))
     # Update the limits using set_xlim and set_ylim

@@ -4,61 +4,61 @@
 ###################
 
 #  Dictionary contains:
-#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs)
+#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, initial_mass_error, error_leach, error_pond)
 mxCr_dict_S_1st = {
-    'a_high_0d': (1818.12, 138.1, 'nan'),
-    'b_high_1d': (1472.67, 207.1, 'nan'),
-    'c_med12_0d': (1818.12, 201.0, 'nan'),
-    'd_med12_1d': (1472.67, 50.4, 'nan'),
-    'e_med30_0d': (1818.12, 641.8, 'nan'),
-    'f_med30_1d': (1472.67, 356.8, 'nan'),
-    'g_low_0d': (1818.12, 177.0, 'nan'),
-    'h_low_1d': (1472.67, 293.5, 'nan')
+    'a_high_0d': (1818.12, 138.1, 'nan', 755.5, 8, 0.),
+    'b_high_1d': (1472.67, 207.1, 'nan', 631.3, 12, 0.),
+    'c_med12_0d': (1818.12, 201.0, 'nan', 755.5, 11, 0.),
+    'd_med12_1d': (1472.67, 50.4, 'nan', 631.3, 3, 0.),
+    'e_med30_0d': (1818.12, 641.8, 'nan', 755.5, 36, 0.),
+    'f_med30_1d': (1472.67, 356.8, 'nan', 631.3, 20, 0.),
+    'g_low_0d': (1818.12, 177.0, 'nan', 755.5, 10, 0.),
+    'h_low_1d': (1472.67, 293.5, 'nan', 631.3, 16, 0.)
 }
 
 #  Dictionary contains:
-#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs)
+#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, initial_mass_error, error_lecah, error_pond)
 mxCr_dict_L_1st = {
-    'a_high_0d': (1518.06, 145.4, 'nan'),
-    'b_high_1d': (1413.28, 283.5, 'nan'),
-    'c_med12_0d': (1518.06, 158.4, 'nan'),
-    'd_med12_1d': (1413.28, 262.3, 'nan'),
-    'e_med30_0d': (1518.06, 674.9, 'nan'),
-    'f_med30_1d': (1413.28, 360.2, 'nan'),
-    'g_low_0d': (1518.06, 418.2, 'nan'),
-    'h_low_1d': (1413.28, 480.9, 'nan')
+    'a_high_0d': (1518.06, 145.4, 'nan', 648.3, 8, 0.),
+    'b_high_1d': (1413.28, 283.5, 'nan', 597.4, 16, 0.),
+    'c_med12_0d': (1518.06, 158.4, 'nan', 648.3, 9, 0.),
+    'd_med12_1d': (1413.28, 262.3, 'nan' , 597.4, 15, 0.),
+    'e_med30_0d': (1518.06, 674.9, 'nan', 648.3, 38, 0.),
+    'f_med30_1d': (1413.28, 360.2, 'nan', 597.4, 20, 0.),
+    'g_low_0d': (1518.06, 418.2, 'nan', 648.3, 23, 0.),
+    'h_low_1d': (1413.28, 480.9, 'nan', 597.4, 27, 0.)
 }
 
-#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, percolated_vol, roff_vol)
+#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, initial_mass_error, error_lecah, error_pond)
 mxCr_dict_S_2nd = {
-    'a_high_0d': (1496.75, 8.35, 5.7),
-    'b_high_1d': (1127.52, 37.57, 4.1),
-    'c_med12_0d': (1440.72, 290.3, 'nan'),
-    'd_med12_1d': (1267.11, 'nan', 9.2),
-    'e_med30_0d': (1047.95, 93.3, 4.3),
-    'f_med30_1d': (994.09, 82.2, 14.0),
-    'g_low_0d': (1462.08, 285.3, 'nan'),
-    'h_low_1d': (1050.48, 'nan', 12.4)
+    'a_high_0d': (1496.75, 8.35, 5.7, 763.2, 0.5, 0.3),
+    'b_high_1d': (1127.52, 37.57, 4.1, 642.9, 2.0, 0.2),
+    'c_med12_0d': (1440.72, 290.3, 'nan', 766.8, 'nan', 'nan'),
+    'd_med12_1d': (1267.11, 'nan', 9.2, 634.1, 'nan', 0.5),
+    'e_med30_0d': (1047.95, 93.3, 4.3, 791.4, 5.2, 0.2),
+    'f_med30_1d': (994.09, 82.2, 14.0, 651.3, 4.6, 0.8),
+    'g_low_0d': (1462.08, 285.3, 'nan', 765.4, 'nan', 'nan'),
+    'h_low_1d': (1050.48, 'nan', 12.4, 647.7, 'nan', 0.7)
 }
 
 #  Dictionary contains:
-#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs)
+#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, initial_mass_error, error_lecah, error_pond)
 mxCr_dict_L_2nd = {
-    'a_high_0d': (1222.86, 175.44, 4.7),
-    'b_high_1d': (1006.54, 40.03, 3.2),
-    'c_med12_0d': (1211.28, 272.5, 1.8),
-    'd_med12_1d': (1025.43, 168.5, 'nan'),
-    'e_med30_0d': (751.13, 35.1, 8.9),
-    'f_med30_1d': (938.23, 146.1, 0.1),
-    'g_low_0d': (979.82, 86.0, 5.8),
-    'h_low_1d': (830.68, 76.5, 9.6)
+    'a_high_0d': (1222.86, 175.44, 4.7, 656.4, 9.8, 0.3),
+    'b_high_1d': (1006.54, 40.03, 3.2, 613.3, 1.7, 0.2),
+    'c_med12_0d': (1211.28, 272.5, 1.8, 657.1, 15.2, 0.1),
+    'd_med12_1d': (1025.43, 168.5, 'nan', 612.1, 9.4, 'nan'),
+    'e_med30_0d': (751.13, 35.1, 8.9, 686.0, 2.1, 0.5),
+    'f_med30_1d': (938.23, 146.1, 0.1, 617.5, 8.2, 0.008),
+    'g_low_0d': (979.82, 86.0, 5.8, 671.7, 4.8, 0.3),
+    'h_low_1d': (830.68, 76.5, 9.6, 624.3, 4.3, 0.5)
 }
 
 ###################
 # Metalaxyl Vine
 ###################
 
-#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs)
+#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, initial_mass_error, error_lecah, error_pond)
 mxVn_dict_S_1st = {
     'a_high_0d': (2105.8, 307.0, 'nan'),
     'b_high_1d': (1504.94, 269.5, 'nan'),
@@ -71,7 +71,7 @@ mxVn_dict_S_1st = {
 }
 
 #  Dictionary contains:
-#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs)
+#  Scenario: (initial_mass, leached_mass_observed, ponded_mass_obs, initial_mass_error, error_lecah, error_pond)
 mxVn_dict_L_1st = {
     'a_high_0d': (1741.66, 271.3, 'nan'),
     'b_high_1d': (1696.73, 116.9, 'nan'),
