@@ -101,6 +101,106 @@ def hydroplot(data,
     plt.title(title)
     plt.show()
 
+
+def hydroplot3(
+        data,
+        y1, y2, y3, y4,
+        obs_high_6min, obs_med_12min, obs_med_30min, obs_low_30min,
+        title):
+    """
+    :param data: see: leach_hydrology.py. Need to ensure data
+    data[:, 0] = time
+    data[:, 1] = cum infiltration (135 mm/h)
+    data[:, 2] = cum infiltration (55 mm/h)
+    data[:, 3] = cum infiltration (30 mm/h)
+    data[:, 4] = cum leached (135 mm/h)
+    data[:, 5] = cum leached (55 mm/h)
+    data[:, 6] = cum leached (30 mm/h)
+
+    :return:
+    Plot with cumu. inf. and cum. leached volumes [mL]
+    """
+    sns.set(style="whitegrid")
+
+    y_var = [y1, y2, y3, y4]
+
+    color_sequence = ['#d62728', 'darkviolet', '#2ca02c', '#1f77b4',  # red, green, blue
+                      '#d62728', 'darkviolet', '#2ca02c', '#1f77b4']  # red, green, blue
+
+    # Convert from mm3 to cm3 all volume hydro data.
+    fig, ax1 = plt.subplots()
+    ax1.plot(data[:, 0], data[:, 1]/10**3, color_sequence[0], linestyle='solid', label=str(y_var[0]+ " (SF)"))
+    ax1.plot(data[:, 0], data[:, 2]/10**3, color_sequence[1], linestyle='solid', label=y_var[1]+ " (SF)")
+    ax1.plot(data[:, 0], data[:, 3]/10**3, color_sequence[2], linestyle='solid', label=y_var[2]+ " (SF)")
+    ax1.plot(data[:, 0], data[:, 4]/10 ** 3, color_sequence[3], linestyle='solid', label=y_var[3]+ " (SF)")
+
+    ax1.plot(data[:, 0], data[:, 5] / 10 ** 3, color_sequence[0], linestyle='dashed', label=y_var[0] + " (SA)")
+    ax1.plot(data[:, 0], data[:, 6] / 10 ** 3, color_sequence[1], linestyle='dashed', label=y_var[1] + " (SA)")
+    ax1.plot(data[:, 0], data[:, 7] / 10 ** 3, color_sequence[2], linestyle='dashed', label=y_var[2] + " (SA)")
+    ax1.plot(data[:, 0], data[:, 8] / 10 ** 3, color_sequence[3], linestyle='dashed', label=y_var[3] + " (SA)")
+
+    ax1.plot(data[:, 0], data[:, 9] / 10 ** 3, color_sequence[0], linestyle='dashdot', label=y_var[0] + " (LF)")
+    ax1.plot(data[:, 0], data[:, 10] / 10 ** 3, color_sequence[1], linestyle='dashdot', label=y_var[1] + " (LF)")
+    ax1.plot(data[:, 0], data[:, 11] / 10 ** 3, color_sequence[2], linestyle='dashdot', label=y_var[2] + " (LF)")
+    ax1.plot(data[:, 0], data[:, 12] / 10 ** 3, color_sequence[3], linestyle='dashdot', label=y_var[3] + " (LF)")
+
+    ax1.plot(data[:, 0], data[:, 13] / 10 ** 3, color_sequence[0], linestyle='dotted', label=y_var[0] + " (LA)")
+    ax1.plot(data[:, 0], data[:, 14] / 10 ** 3, color_sequence[1], linestyle='dotted', label=y_var[1] + " (LA)")
+    ax1.plot(data[:, 0], data[:, 15] / 10 ** 3, color_sequence[2], linestyle='dotted', label=y_var[2] + " (LA)")
+    ax1.plot(data[:, 0], data[:, 16] / 10 ** 3, color_sequence[3], linestyle='dotted', label=y_var[3] + " (LA)")
+
+    """ Lab results """
+    soil_modal = ['Sterile Fresh', 'Live Fresh',
+                  'Ster. Aged', 'Live Aged']
+    # Minutes
+    # [sterile, untreat, sterile_aged, untreat_aged]
+    six1 = np.array([5.8])
+    six = np.array([6.1])
+
+    twelve1 = np.array([11.8])
+    twelve = np.array([12.1])
+
+    thirty1 = np.array([29.8])
+    thirty = np.array([30])
+
+    ax1.plot(six, obs_high_6min[0], color='#d62728', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(six, obs_high_6min[1], color='#d62728', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(twelve, obs_med_12min[0], color='darkviolet', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(twelve, obs_med_12min[1], color='darkviolet', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(thirty, obs_med_30min[0], color='#2ca02c', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, obs_med_30min[1], color='#2ca02c', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(thirty, obs_low_30min[0], color='#1f77b4', marker='v', linestyle='None', label=soil_modal[0])
+    ax1.plot(thirty1, obs_low_30min[1], color='#1f77b4', marker='o', linestyle='None', label=soil_modal[1])
+
+    ax1.plot(six1, obs_high_6min[2], color='#d62728', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(six1, obs_high_6min[3], color='#d62728', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(twelve1, obs_med_12min[2], color='darkviolet', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(twelve1, obs_med_12min[3], color='darkviolet', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(thirty, obs_med_30min[2], color='#2ca02c', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(thirty1, obs_med_30min[3], color='#2ca02c', marker='s', linestyle='None', label=soil_modal[3])
+
+    ax1.plot(thirty, obs_low_30min[2], color='#1f77b4', marker='^', linestyle='None', label=soil_modal[2])
+    ax1.plot(thirty1, obs_low_30min[3], color='#1f77b4', marker='s', linestyle='None', label=soil_modal[3])
+
+    add_margin(ax1, x=0.01, y=0.01)
+
+    ax1.set_xlabel('Time (min)')
+    ax1.set_ylabel('Volume (mL)')
+
+    # plt.legend(loc='upper left', fancybox=True, framealpha=0.7)
+    ax1.legend(bbox_to_anchor=(1.65, 0.9), fancybox=True, framealpha=0.7, ncol=2)
+    # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+    # plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    # fig.subplots_adjust(right=0.7)
+
+    plt.show()
+
+
 def hydroplot2(
         data,
         y1, y2, y3, y4,
@@ -190,6 +290,7 @@ def hydroplot2(
     else:
         plt.title(title + " (Fresh)")
     plt.show()
+
 
 def pestiplot_all(data,
                   obs_high_6min,
@@ -417,6 +518,19 @@ def pestiplot_condition(
     # fig.plugins = [plugins.PointLabelTooltip(x_values, y_values)]
     plt.legend(loc='upper left', fancybox=True, framealpha=0.8)
     plt.show()
+
+
+def stackdata36(time,
+                a, b, c, d, e, f, g, h, i, j,
+                k, l, m, n, o, p, q, r, s, t,
+                u, v, w, x, y, z, aa, ab, ac, ad,
+                af, ag, ah, ai, aj, ak):
+    data = np.column_stack((
+        time,
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n,
+        o, p, q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad,
+        af, ag, ah, ai, aj, ak))
+    return data
 
 
 def stackdata28(time,

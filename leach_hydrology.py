@@ -178,15 +178,19 @@ def leachsim2(
         kSat,  # mm/min (13.5 cm/h - Crop Soil) - Alteck
         soil_height,  # mm
         soil,
+        isAGED,
+        isFirstCycle,
         dtGA = 1,  # Timestep in minute
         StormD = 30,  # Storm duration in min
         intensityM = [2.25, 0.92, 0.92, 0.5],  # mm/min = [0.225, 0.092, 0.05] cm/min
         numSystems = 3,  # Number of combined replicas
         psi=1100,  # soil suction Alteck mm
-        AGED = False,
-        first_cycle=False):
+        ):
+    """
+    finds optimal Ksat for AGED or FRESH Soils only.
+    """
 
-    if first_cycle:
+    if isFirstCycle:
         if soil == 'Alteck':
             ovSat = 0.61
             ov = 0.20
@@ -297,7 +301,7 @@ def leachsim2(
                 cum_leach_vol = (cum_leach * area * numSystems)
                 cum_leach_dt.append(cum_leach_vol)
 
-            if not AGED:
+            if not isAGED:
                 age = 0
             else:
                 age = 2
@@ -429,7 +433,7 @@ def leachsim2(
     SSres = SS1 + SS2 + SS3 + SS4
     r_squared = 1 - (SSres / SStot)
 
-    if AGED:
+    if isAGED:
         print("AGED")
     else:
         print("FRESH")
@@ -464,19 +468,21 @@ def leachsim2(
 
 def leachsim3(
         high_leach_obs, med12_leach_obs, med30_leach_obs, low_leach_obs,  # each as list
-        kSat,  # mm/min (13.5 cm/h - Crop Soil) - Alteck
+        kSat,  # [list of Ksats to test]
         soil_height,  # mm
         soil,
+        isFirstCycle,
         dtGA = 1,  # Timestep in minute
         StormD = 30,  # Storm duration in min
         intensityM = [2.25, 0.92, 0.92, 0.5],  # mm/min = [0.225, 0.092, 0.05] cm/min
         numSystems = 3,  # Number of combined replicas
         psi=1100,  # soil suction Alteck mm
-        STERILE = False,
-        AGED = False,
-        first_cycle=False):
+        ):
+    """
+    Finds optimal Ksats for each soil.
+    """
 
-    if first_cycle:
+    if isFirstCycle:
         if soil == 'Alteck':
             ovSat = 0.61
             ov = 0.20
@@ -498,14 +504,11 @@ def leachsim3(
     d = (14.93 * 2)  # Diameter of falcon tube (mm)
     area = ((d / 2) ** 2) * 3.1416
 
-    intensity_num = 0
     # Running each of the intesities in one loop
-    for s in range(4):  # [sterile, untreat, sterile_aged, untreat_aged]
-        for i in range(len(intensityM)):
-            intensity_num += 1
-            error = 10**9
+    for soil in range(4):  # [sterile, untreat, sterile_aged, untreat_aged]
+        for ii in range(len(intensityM)):
+            error = 10 ** 9
             for k in kSat:  # Test best kSat in list
-
                 """ Initialization """
                 cum_time = 0.0
                 cum_runoff = 0.0
@@ -527,7 +530,7 @@ def leachsim3(
                 """ Start of rainfall event X """
                 while cum_time < StormD:
                     cum_time += dtGA
-                    intensity = intensityM[i]
+                    intensity = intensityM[ii]
                     cum_precip += intensity*dtGA
 
                     """
@@ -585,24 +588,24 @@ def leachsim3(
                     cum_leach_vol = (cum_leach * area * numSystems)
                     cum_leach_dt.append(cum_leach_vol)
 
-                if intensity_num == 1:
-                    ksat_error = (cum_leach_dt[5]/10**3 - high_leach_obs[s]) ** 2
+                if ii == 0:
+                    ksat_error = (cum_leach_dt[5]/10**3 - high_leach_obs[soil]) ** 2
 
-                elif intensity_num == 2:
-                    ksat_error = (cum_leach_dt[11]/10**3 - med12_leach_obs[s]) ** 2
+                elif ii == 1:
+                    ksat_error = (cum_leach_dt[11]/10**3 - med12_leach_obs[soil]) ** 2
 
-                elif intensity_num == 3:
-                    ksat_error = (cum_leach_dt[-1]/10**3 - med30_leach_obs[s]) ** 2
+                elif ii == 2:
+                    ksat_error = (cum_leach_dt[-1]/10**3 - med30_leach_obs[soil]) ** 2
 
-                elif intensity_num == 4:
-                    ksat_error = (cum_leach_dt[-1]/10**3 - low_leach_obs[s]) ** 2
+                elif ii == 3:
+                    ksat_error = (cum_leach_dt[-1]/10**3 - low_leach_obs[soil]) ** 2
 
                 if ksat_error < error:
                     error = ksat_error
                     # s index -> [sterile, untreat, sterile_aged, untreat_aged] -> [SF, LF, SA, LA]
                     ####################################################
                     # Store hydro. variables  for intesity: 135 mm/h
-                    if intensity_num == 1 and s == 0:
+                    if ii == 0 and soil == 0:
                         cum_time_6min_SF = cum_time_dt
                         cum_precip_6min_SF = cum_precip_dt
                         cum_runoff_6min_SF = cum_runoff_dt
@@ -617,14 +620,14 @@ def leachsim3(
                         time_size_6min_SF = time_size_dt
                         mass_bal_1_SF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_high_SF = k
-                        high_SF_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) / high_leach_obs[s]) * 100
+                        high_SF_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) / high_leach_obs[soil]) * 100
 
                         # print("Sim:", cum_leach_dt[5] / 10 ** 3)
                         # print("Obs:", high_leach_obs[s])
                         # print(cum_leach_dt)
-                        SS1_SF = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) ** 2
+                        SS1_SF = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 1 and s == 1:
+                    elif ii == 0 and soil == 1:
                         cum_time_6min_LF = cum_time_dt
                         cum_precip_6min_LF = cum_precip_dt
                         cum_runoff_6min_LF = cum_runoff_dt
@@ -639,14 +642,14 @@ def leachsim3(
                         time_size_6min_LF = time_size_dt
                         mass_bal_1_LF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_high_LF = k
-                        high_LF_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) / high_leach_obs[s]) * 100
+                        high_LF_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) / high_leach_obs[soil]) * 100
 
                         # print("Sim:", cum_leach_dt[5] / 10 ** 3)
                         # print("Obs:", high_leach_obs[s])
                         # print(cum_leach_dt)
-                        SS1_LF = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) ** 2
+                        SS1_LF = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 1 and s == 2:
+                    elif ii == 0 and soil == 2:
                         cum_time_6min_SA = cum_time_dt
                         cum_precip_6min_SA = cum_precip_dt
                         cum_runoff_6min_SA = cum_runoff_dt
@@ -661,15 +664,15 @@ def leachsim3(
                         time_size_6min_SA = time_size_dt
                         mass_bal_1_SA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_high_SA = k
-                        high_SA_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) / high_leach_obs[
-                            s]) * 100
+                        high_SA_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) / high_leach_obs[
+                            soil]) * 100
 
                         # print("Sim:", cum_leach_dt[5] / 10 ** 3)
                         # print("Obs:", high_leach_obs[s])
                         # print(cum_leach_dt)
-                        SS1_SA = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) ** 2
+                        SS1_SA = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 1 and s == 3:
+                    elif ii == 0 and soil == 3:
                         cum_time_6min_LA = cum_time_dt
                         cum_precip_6min_LA = cum_precip_dt
                         cum_runoff_6min_LA = cum_runoff_dt
@@ -684,17 +687,17 @@ def leachsim3(
                         time_size_6min_LA = time_size_dt
                         mass_bal_1_LA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_high_LA = k
-                        high_LA_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) / high_leach_obs[
-                            s]) * 100
+                        high_LA_error_prc = ((cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) / high_leach_obs[
+                            soil]) * 100
 
                         # print("Sim:", cum_leach_dt[5] / 10 ** 3)
                         # print("Obs:", high_leach_obs[s])
                         # print(cum_leach_dt)
-                        SS1_LA = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[s]) ** 2
+                        SS1_LA = (cum_leach_dt[5] / 10 ** 3 - high_leach_obs[soil]) ** 2
 
                     ####################################################
                     # Store hydro. variables  for intesity: 55 mm/h @ 12 min
-                    elif intensity_num == 2 and s == 0:
+                    elif ii == 1 and soil == 0:
                         cum_time_med_12min_SF = cum_time_dt
                         cum_precip_med_12min_SF = cum_precip_dt
                         cum_runoff_med_12min_SF = cum_runoff_dt
@@ -706,10 +709,10 @@ def leachsim3(
                         time_size_med_12min_SF = time_size_dt
                         mass_bal_2_SF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med12_SF = k
-                        med12_SF_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) / med12_leach_obs[s]) * 100
-                        SS2_SF = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) ** 2
+                        med12_SF_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) / med12_leach_obs[soil]) * 100
+                        SS2_SF = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 2 and s == 1:
+                    elif ii == 1 and soil == 1:
                         cum_time_med_12min_LF = cum_time_dt
                         cum_precip_med_12min_LF = cum_precip_dt
                         cum_runoff_med_12min_LF = cum_runoff_dt
@@ -721,10 +724,10 @@ def leachsim3(
                         time_size_med_12min_LF = time_size_dt
                         mass_bal_2_LF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med12_LF = k
-                        med12_LF_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) / med12_leach_obs[s]) * 100
-                        SS2_LF = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) ** 2
+                        med12_LF_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) / med12_leach_obs[soil]) * 100
+                        SS2_LF = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 2 and s == 2:
+                    elif ii == 1 and soil == 2:
                         cum_time_med_12min_SA = cum_time_dt
                         cum_precip_med_12min_SA = cum_precip_dt
                         cum_runoff_med_12min_SA = cum_runoff_dt
@@ -736,10 +739,10 @@ def leachsim3(
                         time_size_med_12min_SA = time_size_dt
                         mass_bal_2_SA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med12_SA = k
-                        med12_SA_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) / med12_leach_obs[s]) * 100
-                        SS2_SA = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) ** 2
+                        med12_SA_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) / med12_leach_obs[soil]) * 100
+                        SS2_SA = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 2 and s == 3:
+                    elif ii == 1 and soil == 3:
                         cum_time_med_12min_LA = cum_time_dt
                         cum_precip_med_12min_LA = cum_precip_dt
                         cum_runoff_med_12min_LA = cum_runoff_dt
@@ -751,12 +754,12 @@ def leachsim3(
                         time_size_med_12min_LA = time_size_dt
                         mass_bal_2_LA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med12_LA = k
-                        med12_LA_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) / med12_leach_obs[s]) * 100
-                        SS2_LA = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[s]) ** 2
+                        med12_LA_error_prc = ((cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) / med12_leach_obs[soil]) * 100
+                        SS2_LA = (cum_leach_dt[11] / 10 ** 3 - med12_leach_obs[soil]) ** 2
 
                     ####################################################
                     # Store hydro. variables  for intesity: 55 mm/h @ 30min
-                    elif intensity_num == 3 and s == 0:
+                    elif ii == 2 and soil == 0:
                         cum_time_med_30min_SF = cum_time_dt
                         cum_precip_med_30min_SF = cum_precip_dt
                         cum_runoff_med_30min_SF = cum_runoff_dt
@@ -769,10 +772,10 @@ def leachsim3(
                         mass_bal_3_SF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med30_SF = k
 
-                        med30_SF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) / med30_leach_obs[s]) * 100
-                        SS3_SF = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) ** 2
+                        med30_SF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) / med30_leach_obs[soil]) * 100
+                        SS3_SF = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 3 and s == 1:
+                    elif ii == 2 and soil == 1:
                         cum_time_med_30min_LF = cum_time_dt
                         cum_precip_med_30min_LF = cum_precip_dt
                         cum_runoff_med_30min_LF = cum_runoff_dt
@@ -785,10 +788,10 @@ def leachsim3(
                         mass_bal_3_LF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med30_LF = k
 
-                        med30_LF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) / med30_leach_obs[s]) * 100
-                        SS3_LF = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) ** 2
+                        med30_LF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) / med30_leach_obs[soil]) * 100
+                        SS3_LF = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 3 and s == 2:
+                    elif ii == 2 and soil == 2:
                         cum_time_med_30min_SA = cum_time_dt
                         cum_precip_med_30min_SA = cum_precip_dt
                         cum_runoff_med_30min_SA = cum_runoff_dt
@@ -801,10 +804,10 @@ def leachsim3(
                         mass_bal_3_SA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med30_SA = k
 
-                        med30_SA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) / med30_leach_obs[s]) * 100
-                        SS3_SA = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) ** 2
+                        med30_SA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) / med30_leach_obs[soil]) * 100
+                        SS3_SA = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 3 and s == 3:
+                    elif ii == 2 and soil == 3:
                         cum_time_med_30min_LA = cum_time_dt
                         cum_precip_med_30min_LA = cum_precip_dt
                         cum_runoff_med_30min_LA = cum_runoff_dt
@@ -817,12 +820,12 @@ def leachsim3(
                         mass_bal_3_LA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_med30_LA = k
 
-                        med30_LA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) / med30_leach_obs[s]) * 100
-                        SS3_LA = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[s]) ** 2
+                        med30_LA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) / med30_leach_obs[soil]) * 100
+                        SS3_LA = (cum_leach_dt[-1] / 10 ** 3 - med30_leach_obs[soil]) ** 2
 
                     ####################################################
                     # Store hydro. variables  for intesity: 30 mm/h
-                    elif intensity_num == 4 and s == 0:
+                    elif ii == 3 and soil == 0:
                         cum_time_30min_SF = cum_time_dt
                         cum_precip_low_30min_SF = cum_precip_dt
                         cum_runoff_low_30min_SF = cum_runoff_dt
@@ -834,10 +837,10 @@ def leachsim3(
                         time_size_low_30min_SF = time_size_dt
                         mass_bal_4_SF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_low_SF = k
-                        low_SF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) / low_leach_obs[s]) * 100
-                        SS4_SF = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) ** 2
+                        low_SF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) / low_leach_obs[soil]) * 100
+                        SS4_SF = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 4 and s == 1:
+                    elif ii == 3 and soil == 1:
                         cum_time_30min_LF = cum_time_dt
                         cum_precip_low_30min_LF = cum_precip_dt
                         cum_runoff_low_30min_LF = cum_runoff_dt
@@ -849,10 +852,10 @@ def leachsim3(
                         time_size_low_30min_LF = time_size_dt
                         mass_bal_4_LF = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_low_LF = k
-                        low_LF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) / low_leach_obs[s]) * 100
-                        SS4_LF = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) ** 2
+                        low_LF_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) / low_leach_obs[soil]) * 100
+                        SS4_LF = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 4 and s == 2:
+                    elif ii == 3 and soil == 2:
                         cum_time_30min_SA = cum_time_dt
                         cum_precip_low_30min_SA = cum_precip_dt
                         cum_runoff_low_30min_SA = cum_runoff_dt
@@ -864,10 +867,10 @@ def leachsim3(
                         time_size_low_30min_SA = time_size_dt
                         mass_bal_4_SA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_low_SA = k
-                        low_SA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) / low_leach_obs[s]) * 100
-                        SS4_SA = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) ** 2
+                        low_SA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) / low_leach_obs[soil]) * 100
+                        SS4_SA = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) ** 2
 
-                    elif intensity_num == 4 and s == 3:
+                    elif ii == 3 and soil == 3:
                         cum_time_30min_LA = cum_time_dt
                         cum_precip_low_30min_LA = cum_precip_dt
                         cum_runoff_low_30min_LA = cum_runoff_dt
@@ -879,8 +882,8 @@ def leachsim3(
                         time_size_low_30min_LA = time_size_dt
                         mass_bal_4_LA = cum_precip_dt[-1] - (cum_runoff_dt[-1] + cum_inf_dt[-1])
                         k_low_LA = k
-                        low_LA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) / low_leach_obs[s]) * 100
-                        SS4_LA = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[s]) ** 2
+                        low_LA_error_prc = ((cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) / low_leach_obs[soil]) * 100
+                        SS4_LA = (cum_leach_dt[-1] / 10 ** 3 - low_leach_obs[soil]) ** 2
 
                     else:
                         print("Do you have more than 3 rainfall scenarios?")
@@ -890,14 +893,14 @@ def leachsim3(
 
     mean_obs = (np.mean(high_leach_obs) + np.mean(med12_leach_obs) + np.mean(med30_leach_obs) + np.mean(low_leach_obs))/4
     SStot = 0
-    for i in high_leach_obs:
-        SStot += (i-mean_obs)**2
-    for i in med12_leach_obs:
-        SStot += (i-mean_obs)**2
-    for i in med30_leach_obs:
-        SStot += (i-mean_obs)**2
-    for i in low_leach_obs:
-        SStot += (i-mean_obs)**2
+    for obs in high_leach_obs:
+        SStot += (obs-mean_obs)**2
+    for obs in med12_leach_obs:
+        SStot += (obs-mean_obs)**2
+    for obs in med30_leach_obs:
+        SStot += (obs-mean_obs)**2
+    for obs in low_leach_obs:
+        SStot += (obs-mean_obs)**2
 
     SSres = SS1_SF + SS2_SF + SS3_SF + SS4_SF + \
             SS1_LF + SS2_LF + SS3_LF + SS4_LF + \
@@ -905,38 +908,57 @@ def leachsim3(
             SS1_LA + SS2_LA + SS3_LA + SS4_LA
 
     r_squared = 1 - (SSres / SStot)
-
-    if AGED:
-        print("AGED")
-    else:
-        print("FRESH")
-    print("--------------------------------------------")
-    print("ksat high: ", k_high/10*60, "cm/h")
-    print("ksat med12: ", k_med12/10*60, "cm/h")
-    print("ksat med30: ", k_med30/10*60, "cm/h")
-    print("ksat low: ", k_low/10*60, "cm/h")
-    print("--------------------------------------------")
     print("R2: ", r_squared)
     print("--------------------------------------------")
-    print("Simulation error percent (%), by modality")
+    print("Sterile, Fresh Soil")
+    print("ksat high: ", k_high_SF/10*60, "cm/h | Error %", high_SF_error_prc)
+    print("ksat med12: ", k_med12_SF/10*60, "cm/h | Error %", med12_SF_error_prc)
+    print("ksat med30: ", k_med30_SF/10*60, "cm/h | Error %", med30_SF_error_prc)
+    print("ksat low: ", k_low_SF/10*60, "cm/h | Error %", low_SF_error_prc)
     print("--------------------------------------------")
-    print("135 mm/h - 6min ", high_error_prc)
-    print("55 mm/h - 12min ", med12_error_prc)
-    print("55 mm/h - 30min ", med30_error_prc)
-    print("30 mm/h - 30min ", low_error_prc)
+    print("Sterile, Aged Soil")
+    print("ksat high: ", k_high_SA/10*60, "cm/h | Error %", high_SA_error_prc)
+    print("ksat med12: ", k_med12_SA/10*60, "cm/h | Error %", med12_SA_error_prc)
+    print("ksat med30: ", k_med30_SA/10*60, "cm/h | Error %", med30_SA_error_prc)
+    print("ksat low: ", k_low_SA/10*60, "cm/h | Error %", low_SA_error_prc)
     print("--------------------------------------------")
-    print("Mass balance: ", abs(mass_bal_1) < 10 ** (-6), abs(mass_bal_2) < 10 ** (-6), abs(mass_bal_3) < 10 ** (-6),
-          abs(mass_bal_4) < 10 ** (-6))
+    print("Living, Fresh Soil")
+    print("ksat high: ", k_high_LF / 10 * 60, "cm/h | Error %", high_LF_error_prc)
+    print("ksat med12: ", k_med12_LF / 10 * 60, "cm/h | Error %", med12_LF_error_prc)
+    print("ksat med30: ", k_med30_LF / 10 * 60, "cm/h | Error %", med30_LF_error_prc)
+    print("ksat low: ", k_low_LF / 10 * 60, "cm/h | Error %", low_LF_error_prc)
+    print("--------------------------------------------")
+    print("Living, Fresh Aged")
+    print("ksat high: ", k_high_LA / 10 * 60, "cm/h | Error %", high_LA_error_prc)
+    print("ksat med12: ", k_med12_LA / 10 * 60, "cm/h | Error %", med12_LA_error_prc)
+    print("ksat med30: ", k_med30_LA / 10 * 60, "cm/h | Error %", med30_LA_error_prc)
+    print("ksat low: ", k_low_LA / 10 * 60, "cm/h | Error %", low_LA_error_prc)
+    print("--------------------------------------------")
+
+    # print("Mass balance: ", abs(mass_bal_1) < 10 ** (-6), abs(mass_bal_2) < 10 ** (-6), abs(mass_bal_3) < 10 ** (-6),
+    #      abs(mass_bal_4) < 10 ** (-6))
 
     # Data in mm3
     # Available for each modality with eg. "_SF" subscript but not returned are also:
     # leach_6min, leach_med_12min_SF, leach_med_30min, leach_low_30min,
     # cum_inf_6min, cum_inf_med_12min_SF, cum_inf_med_30min, cum_inf_low_30min,
     # infil_6min, infil_med_12min_SF, infil_med_30min, infil_low_30min,
-    return stackdata28(cum_time_30min,
-
-                       cum_leach_6min_SF, cum_leach_med_12min_SF, cum_leach_med_30min, cum_leach_low_30min,
-                       runoff_6min_SF, runoff_med_12min_SF, runoff_med_30min, runoff_low_30min,
-                       cum_runoff_6min_SF, cum_runoff_med_12min_SF, cum_runoff_med_30min, cum_runoff_low_30min,
-
-                       time_size_6min_SF, time_size_med_12min_SF, time_size_med_30min, time_size_low_30min)
+    return stackdata36(
+        cum_time_30min_SF,  # 0
+        cum_runoff_6min_SF, cum_leach_6min_SF,  # 2
+        cum_runoff_6min_SA, cum_leach_6min_SA,  # 4
+        cum_runoff_6min_LF, cum_leach_6min_LF,
+        cum_runoff_6min_LA, cum_leach_6min_LA,  # 8
+        cum_runoff_med_12min_SF, cum_leach_med_12min_SF,
+        cum_runoff_med_12min_SA, cum_leach_med_12min_SA,
+        cum_runoff_med_12min_LF, cum_leach_med_12min_LF,
+        cum_runoff_med_12min_LA, cum_leach_med_12min_LA,  # 16
+        cum_runoff_med_30min_SF, cum_leach_med_30min_SF,
+        cum_runoff_med_30min_SA, cum_leach_med_30min_SA,
+        cum_runoff_med_30min_LF, cum_leach_med_30min_LF,
+        cum_runoff_med_30min_LA, cum_leach_med_30min_LA,
+        cum_runoff_low_30min_SF, cum_leach_low_30min_SF,
+        cum_runoff_low_30min_SA, cum_leach_low_30min_SA,  # 28
+        cum_runoff_low_30min_LF, cum_leach_low_30min_LF,
+        cum_runoff_low_30min_LA, cum_leach_low_30min_LA,
+        time_size_6min_SF, time_size_med_12min_SF, time_size_med_30min_SF, time_size_low_30min_SF)  # 36
