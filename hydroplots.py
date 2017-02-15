@@ -423,11 +423,11 @@ def pestiplot_condition(
         for i in range(1, len(data[0])):
             pattern += 1
             if i % 2 != 0 and (pattern == 3):
-                ax1.plot(data[:][:, 0], data[:][:, i]+1, color_sequence[i - 1], label=treat_intens[i - 1])
+                ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1])
             elif i % 2 != 0:
                 ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1])
             elif i % 2 == 0 and (pattern == 4):
-                ax1.plot(data[:][:, 0], data[:][:, i]+1, color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
+                ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
             else:
                 ax1.plot(data[:][:, 0], data[:][:, i], color_sequence[i - 1], label=treat_intens[i - 1], linestyle='dashed')
     else:
