@@ -740,7 +740,6 @@ def pest_linear_x(
         pond_30mmh_aged = pond_data[:, 3]
 
     else:
-        print("Error? X-factor should not be used for 2nd cycle...")
         if isLiving:
             leach_135mmh_fresh = percol_data[:, 9]  # leached volume per timestep @ high intensity
             leach_55mmhA_fresh = percol_data[:, 10]

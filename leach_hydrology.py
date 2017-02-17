@@ -3,7 +3,7 @@ from hydroplots import *
 
 
 def leachsim(kSat,  # 2.25 mm/min (13.5 cm/h - Crop Soil) - Alteck
-             soil_height, # mm
+             soil_height,  # mm
              soil,
              dtGA = 1,  # Timestep in minute
              StormD = 30,  # Storm duration in min
@@ -456,7 +456,8 @@ def leachsim2(
           abs(mass_bal_4) < 10 ** (-6))
 
     # Data in mm3
-    return stackdata28(cum_time_30min,
+
+    stack = stackdata28(cum_time_30min,
                        leach_6min, leach_med_12min, leach_med_30min, leach_low_30min,
                        cum_inf_6min, cum_inf_med_12min, cum_inf_med_30min, cum_inf_low_30min,
                        cum_leach_6min, cum_leach_med_12min, cum_leach_med_30min, cum_leach_low_30min,
@@ -464,6 +465,8 @@ def leachsim2(
                        cum_runoff_6min, cum_runoff_med_12min, cum_runoff_med_30min, cum_runoff_low_30min,
                        infil_6min, infil_med_12min, infil_med_30min, infil_low_30min,
                        time_size_6min, time_size_med_12min, time_size_med_30min, time_size_low_30min)
+
+    return [stack, r_squared, high_error_prc, med12_error_prc, med30_error_prc, low_error_prc]
 
 
 def leachsim3(
@@ -505,6 +508,7 @@ def leachsim3(
     area = ((d / 2) ** 2) * 3.1416
 
     # Running each of the intesities in one loop
+
     for soil in range(4):  # [sterile, untreat, sterile_aged, untreat_aged]
         for ii in range(len(intensityM)):
             error = 10 ** 9
@@ -943,7 +947,8 @@ def leachsim3(
     # leach_6min, leach_med_12min_SF, leach_med_30min, leach_low_30min,
     # cum_inf_6min, cum_inf_med_12min_SF, cum_inf_med_30min, cum_inf_low_30min,
     # infil_6min, infil_med_12min_SF, infil_med_30min, infil_low_30min,
-    return stackdata36(
+
+    stack = stackdata36(
         cum_time_30min_SF,  # 0
         cum_runoff_6min_SF, cum_leach_6min_SF,  # 2
         cum_runoff_6min_SA, cum_leach_6min_SA,  # 4
@@ -962,3 +967,34 @@ def leachsim3(
         cum_runoff_low_30min_LF, cum_leach_low_30min_LF,
         cum_runoff_low_30min_LA, cum_leach_low_30min_LA,
         time_size_6min_SF, time_size_med_12min_SF, time_size_med_30min_SF, time_size_low_30min_SF)  # 36
+
+    ksat_solutions = {
+        'a_high_0d': (k_high_SF/10*60, k_high_LF/10*60),
+        'b_high_1d': (k_high_SA/10*60, k_high_LA/10*60),
+        'c_med12_0d': (k_med12_SF/10*60, k_med12_LF/10*60),
+        'd_med12_1d': (k_med12_SA/10*60, k_med12_LA/10*60),
+        'e_med30_0d': (k_med30_SF/10*60, k_med12_LF/10*60),
+        'f_med30_1d': (k_med30_SA/10*60, k_med30_LA/10*60),
+        'g_low_0d': (k_low_SF/10*60, k_low_LF/10*60),
+        'h_low_1d': (k_low_SA/10*60, k_low_LA/10*60)
+    }
+
+    ksat_errors = {
+        'a_high_0d': (high_SF_error_prc, high_LF_error_prc),
+        'b_high_1d': (high_SA_error_prc, high_LA_error_prc),
+        'c_med12_0d': (med12_SF_error_prc, med12_LF_error_prc),
+        'd_med12_1d': (med12_SA_error_prc, med12_LA_error_prc),
+        'e_med30_0d': (med30_SF_error_prc, med30_LF_error_prc),
+        'f_med30_1d': (med30_SA_error_prc, med30_LA_error_prc),
+        'g_low_0d': (low_SF_error_prc, low_LF_error_prc),
+        'h_low_1d': (low_SA_error_prc, low_LA_error_prc)
+    }
+
+    return [stack, r_squared, ksat_solutions, ksat_errors]
+
+
+
+
+
+
+
