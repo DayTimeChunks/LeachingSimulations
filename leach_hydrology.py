@@ -174,7 +174,6 @@ def leachsim(kSat,  # 2.25 mm/min (13.5 cm/h - Crop Soil) - Alteck
 
 
 def leachsim2(
-        high_leach_obs, med12_leach_obs, med30_leach_obs, low_leach_obs,  # each as list
         kSat,  # mm/min (13.5 cm/h - Crop Soil) - Alteck
         soil_height,  # mm
         soil,
@@ -194,17 +193,65 @@ def leachsim2(
         if soil == 'Alteck':
             ovSat = 0.61
             ov = 0.20
+
+            # Observed percolation
+            # fresh, fresh, aged, aged
+
+            # all at 6 min, high inetnesity
+            high_leach_obs = np.array([16.253, 12.958, 17.536, 14.29])
+
+            # all at 12 min, med intensity
+            med12_leach_obs = np.array([10.089, 5.902, 13.981, 10.602])
+
+            # all at 30min, med intensity
+            med30_leach_obs = np.array([49.197, 40.402, 45.772, 47.201])
+
+            # all at 30min, low intensity
+            low_leach_obs = np.array([20.037, 17.508, 22.376, 20.085])
+
         elif soil == 'Rouff':
             ovSat = 0.55
             ov = 0.20
+
+            high_leach_obs = np.array([13.609, 13.610, 17.676, 17.705])  # all at 6 min
+            med12_leach_obs = np.array([13.787, 11.112, 11.858, 11.294])  # all at 12 min
+            med30_leach_obs = np.array([48.185, 46.402, 48.164, 47.032])  # all at 30min
+            low_leach_obs = np.array([22.595, 19.082, 21.285, 20.871])  # all at 30min
+
     else:
         # Saturated water content (0.61 - Alteck; 0.55 - Rouff)
         if soil == 'Alteck':
             ovSat = 0.61
             ov = 0.61 - 0.039
+
+            # Observed percolation (2nd pulse)
+            # Order if array is:
+            #  [sterile, untreat, sterile_aged, untreat_aged]
+
+            # At 6 min, high inetnesity
+            high_leach_obs = np.array([14.192, 8.245, 2.410, 5.469])
+            # At 12 min, med intensity
+            med12_leach_obs = np.array([18.672, 19.0, 0.830, 11.407])
+            # At 30min, med intensity
+            med30_leach_obs = np.array([12.697, 2.473, 3.52, 20.291])
+            # At 30min, low intensity
+            low_leach_obs = np.array([29.656, 9.375, 0.409, 3.385])
+
         elif soil == 'Rouff':
             ovSat = 0.55
             ov = 0.55 - 0.038
+
+            # At 6 min, high inetnesity
+            high_leach_obs = np.array([13.309, 0., 7.394, 6.549])
+
+            # At 12 min, med intensity
+            med12_leach_obs = np.array([0.958, 3.669, 16.06, 12.988])
+
+            # At 30min, med intensity
+            med30_leach_obs = np.array([0.941, 18.601, 51.834, 29.232])
+
+            # At 30min, low intensity
+            low_leach_obs = np.array([10.157, 26.737, 27.533, 6.197])
 
     wfs = psi * (ovSat - ov)  # Numerator in Green-Ampt's equation = (suction x distance to saturation)
     """ Microcosm Dimensions """
@@ -470,10 +517,9 @@ def leachsim2(
 
 
 def leachsim3(
-        high_leach_obs, med12_leach_obs, med30_leach_obs, low_leach_obs,  # each as list
+        soil,
         kSat,  # [list of Ksats to test]
         soil_height,  # mm
-        soil,
         isFirstCycle,
         dtGA = 1,  # Timestep in minute
         StormD = 30,  # Storm duration in min
@@ -489,17 +535,65 @@ def leachsim3(
         if soil == 'Alteck':
             ovSat = 0.61
             ov = 0.20
+
+            # Observed percolation
+            # fresh, fresh, aged, aged
+
+            # all at 6 min, high inetnesity
+            high_leach_obs = np.array([16.253, 12.958, 17.536, 14.29])
+
+            # all at 12 min, med intensity
+            med12_leach_obs = np.array([10.089, 5.902, 13.981, 10.602])
+
+            # all at 30min, med intensity
+            med30_leach_obs = np.array([49.197, 40.402, 45.772, 47.201])
+
+            # all at 30min, low intensity
+            low_leach_obs = np.array([20.037, 17.508, 22.376, 20.085])
+
         elif soil == 'Rouff':
             ovSat = 0.55
             ov = 0.20
+
+            high_leach_obs = np.array([13.609, 13.610, 17.676, 17.705])  # all at 6 min
+            med12_leach_obs = np.array([13.787, 11.112, 11.858, 11.294])  # all at 12 min
+            med30_leach_obs = np.array([48.185, 46.402, 48.164, 47.032])  # all at 30min
+            low_leach_obs = np.array([22.595, 19.082, 21.285, 20.871])  # all at 30min
+
     else:
         # Saturated water content (0.61 - Alteck; 0.55 - Rouff)
         if soil == 'Alteck':
             ovSat = 0.61
             ov = 0.61 - 0.039
+
+            # Observed percolation (2nd pulse)
+            # Order if array is:
+            #  [sterile, untreat, sterile_aged, untreat_aged]
+
+            # At 6 min, high inetnesity
+            high_leach_obs = np.array([14.192, 8.245, 2.410, 5.469])
+            # At 12 min, med intensity
+            med12_leach_obs = np.array([18.672, 19.0, 0.830, 11.407])
+            # At 30min, med intensity
+            med30_leach_obs = np.array([12.697, 2.473, 3.52, 20.291])
+            # At 30min, low intensity
+            low_leach_obs = np.array([29.656, 9.375, 0.409, 3.385])
+
         elif soil == 'Rouff':
             ovSat = 0.55
             ov = 0.55 - 0.038
+
+            # At 6 min, high inetnesity
+            high_leach_obs = np.array([13.309, 0., 7.394, 6.549])
+
+            # At 12 min, med intensity
+            med12_leach_obs = np.array([0.958, 3.669, 16.06, 12.988])
+
+            # At 30min, med intensity
+            med30_leach_obs = np.array([0.941, 18.601, 51.834, 29.232])
+
+            # At 30min, low intensity
+            low_leach_obs = np.array([10.157, 26.737, 27.533, 6.197])
 
     wfs = psi * (ovSat - ov)  # Numerator in Green-Ampt's equation = (suction x distance to saturation)
     """ Microcosm Dimensions """
@@ -993,8 +1087,249 @@ def leachsim3(
     return [stack, r_squared, ksat_solutions, ksat_errors]
 
 
+def extract(
+        water_data,
+        isFirstCycle
+):
+    if isFirstCycle:
+        # Time
+        cum_time_30min = water_data[:, 0]
+
+        # Cummulative infiltration
+        cum_inf_135mmh = water_data[:, 4]
+        cum_inf_55mmh = water_data[:, 5]
+        cum_inf_30mmh = water_data[:, 6]
+
+        # Cummulative leaching
+        cum_leach_135mmh = water_data[:, 7]
+        cum_leach_55mmh = water_data[:, 8]
+        cum_leach_30mmh = water_data[:, 9]
+
+        # Ponding
+        roff_135mmh = water_data[:, 10]
+        roff_55mmh = water_data[:, 11]
+        roff_30mmh = water_data[:, 12]
+
+        # Cummulative ponding
+        cum_roff_135mmh = water_data[:, 13]
+        cum_roff_55mmh = water_data[:, 14]
+        cum_roff_30mmh = water_data[:, 15]
+
+        infil_135mmh = water_data[:, 16]
+        infil_55mmh = water_data[:, 17]
+        infil_30mmh = water_data[:, 18]
+
+        percol_data1 = stackdata3(cum_time_30min,
+                                  cum_leach_135mmh, cum_leach_55mmh, cum_leach_30mmh)
+
+        runoff_data1 = stackdata3(cum_time_30min,
+                                  cum_roff_135mmh, cum_roff_55mmh, cum_roff_30mmh)
+
+        infil_data1 = stackdata3(cum_time_30min,
+                                 infil_135mmh, infil_55mmh, infil_30mmh)
+
+        time_size_135mmh = water_data[:, 19]
+        time_size_55mmhA = water_data[:, 20]
+        time_size_55mmhB = water_data[:, 20]
+        time_size_30mmh = water_data[:, 21]
+
+        time_sizes1 = [time_size_135mmh, time_size_135mmh,
+                       time_size_55mmhA, time_size_55mmhA,
+                       time_size_55mmhB, time_size_55mmhB,
+                       time_size_30mmh, time_size_30mmh]
+
+        return [percol_data1, runoff_data1, time_sizes1, cum_time_30min]
+    else:
+        # Time axis
+        cum_time_30min = water_data[0][:, 0]
+
+        # Cumulative leachate
+        cum_leach_135mmh_SF = water_data[0][:, 2]
+        cum_leach_135mmh_SA = water_data[0][:, 4]
+        cum_leach_135mmh_LF = water_data[0][:, 6]
+        cum_leach_135mmh_LA = water_data[0][:, 8]
+
+        cum_leach_55mmhA_SF = water_data[0][:, 10]
+        cum_leach_55mmhA_SA = water_data[0][:, 12]
+        cum_leach_55mmhA_LF = water_data[0][:, 14]
+        cum_leach_55mmhA_LA = water_data[0][:, 16]
+
+        cum_leach_55mmhB_SF = water_data[0][:, 18]
+        cum_leach_55mmhB_SA = water_data[0][:, 20]
+        cum_leach_55mmhB_LF = water_data[0][:, 22]
+        cum_leach_55mmhB_LA = water_data[0][:, 24]
+
+        cum_leach_30mmh_SF = water_data[0][:, 26]
+        cum_leach_30mmh_SA = water_data[0][:, 28]
+        cum_leach_30mmh_LF = water_data[0][:, 30]
+        cum_leach_30mmh_LA = water_data[0][:, 32]
+
+        # Group each compartment for graphing
+        percol_data2 = stackdata16(
+            cum_time_30min,
+            cum_leach_135mmh_SF, cum_leach_55mmhA_SF, cum_leach_55mmhB_SF, cum_leach_30mmh_SF,
+            cum_leach_135mmh_SA, cum_leach_55mmhA_SA, cum_leach_55mmhB_SA, cum_leach_30mmh_SA,
+            cum_leach_135mmh_LF, cum_leach_55mmhA_LF, cum_leach_55mmhB_LF, cum_leach_30mmh_LF,
+            cum_leach_135mmh_LA, cum_leach_55mmhA_LA, cum_leach_55mmhB_LA, cum_leach_30mmh_LA)
+
+        # Ponding cumulative
+        cum_roff_135mmh_SF = water_data[0][:, 1]
+        cum_roff_135mmh_SA = water_data[0][:, 3]
+        cum_roff_135mmh_LF = water_data[0][:, 5]
+        cum_roff_135mmh_LA = water_data[0][:, 7]
+
+        cum_roff_55mmhA_SF = water_data[0][:, 9]
+        cum_roff_55mmhA_SA = water_data[0][:, 11]
+        cum_roff_55mmhA_LF = water_data[0][:, 13]
+        cum_roff_55mmhA_LA = water_data[0][:, 15]
+
+        cum_roff_55mmhB_SF = water_data[0][:, 17]
+        cum_roff_55mmhB_SA = water_data[0][:, 19]
+        cum_roff_55mmhB_LF = water_data[0][:, 21]
+        cum_roff_55mmhB_LA = water_data[0][:, 23]
+
+        cum_roff_30mmh_SF = water_data[0][:, 25]
+        cum_roff_30mmh_SA = water_data[0][:, 27]
+        cum_roff_30mmh_LF = water_data[0][:, 29]
+        cum_roff_30mmh_LA = water_data[0][:, 31]
+
+        runoff_data2 = stackdata16(
+            cum_time_30min,
+            cum_roff_135mmh_SF, cum_roff_55mmhA_SF, cum_roff_55mmhB_SF, cum_roff_30mmh_SF,
+            cum_roff_135mmh_SA, cum_roff_55mmhA_SA, cum_roff_55mmhB_SA, cum_roff_30mmh_SA,
+            cum_roff_135mmh_LF, cum_roff_55mmhA_LF, cum_roff_55mmhB_LF, cum_roff_30mmh_LF,
+            cum_roff_135mmh_LA, cum_roff_55mmhA_LA, cum_roff_55mmhB_LA, cum_roff_30mmh_LA)
+
+        time_size_135mmh = water_data[0][:, 33]
+        time_size_55mmhA = water_data[0][:, 34]
+        time_size_55mmhB = water_data[0][:, 35]
+        time_size_30mmh = water_data[0][:, 36]
+
+        time_sizes2 = [time_size_135mmh, time_size_135mmh,
+                       time_size_55mmhA, time_size_55mmhA,
+                       time_size_55mmhB, time_size_55mmhB,
+                       time_size_30mmh, time_size_30mmh]
+
+        return [percol_data2, runoff_data2, time_sizes2, cum_time_30min]
 
 
+def extract_goodness(
+        water_data,
+        output_hydro_params,
+        soil_short,
+        isFirstCycle,
+        isAGED  # Doesn't matter for second pulse
+):
+    if isFirstCycle:
+        if isAGED:
+            R1_A = water_data[1]
+            output_hydro_params[soil_short][0]['R1_FA'].append(R1_A)
+            output_hydro_params[soil_short][0]['Err1'][0]['Aged'].append(water_data[2])
+            output_hydro_params[soil_short][0]['Err1'][0]['Aged'].append(water_data[3])
+            output_hydro_params[soil_short][0]['Err1'][0]['Aged'].append(water_data[4])
+            output_hydro_params[soil_short][0]['Err1'][0]['Aged'].append(water_data[5])
+
+        else:
+            R1_F = water_data[1]
+            output_hydro_params[soil_short][0]['R1_FA'].append(R1_F)
+            output_hydro_params[soil_short][0]['Err1'][0]['Fresh'].append(water_data[2])
+            output_hydro_params[soil_short][0]['Err1'][0]['Fresh'].append(water_data[3])
+            output_hydro_params[soil_short][0]['Err1'][0]['Fresh'].append(water_data[4])
+            output_hydro_params[soil_short][0]['Err1'][0]['Fresh'].append(water_data[5])
+
+    else:
+        # Extract R2 for the second pulse hydrology
+        R2_ALL = water_data[1]
+        output_hydro_params[soil_short][0]['R2_ALL'].append(R2_ALL)
+
+        # Extract Ksat for each soil modality
+        # e.g.
+        # ksat_high_SF
+        # ksat_med12_SF
+        # ksat_med30_SF
+        # ksat_low_SF
+
+        ksat_SF = [
+            water_data[2]['a_high_0d'][0],
+            water_data[2]['c_med12_0d'][0],
+            water_data[2]['e_med30_0d'][0],
+            water_data[2]['g_low_0d'][0]
+        ]
+
+        for k in ksat_SF:
+            output_hydro_params[soil_short][0]['Ksat2'][0]['SF'].append(k)
+
+        ksat_LF = [
+            water_data[2]['a_high_0d'][1],
+            water_data[2]['c_med12_0d'][1],
+            water_data[2]['e_med30_0d'][1],
+            water_data[2]['g_low_0d'][1]
+        ]
+
+        for k in ksat_LF:
+            output_hydro_params[soil_short][0]['Ksat2'][0]['LF'].append(k)
+
+        ksat_SA = [
+            water_data[2]['b_high_1d'][0],
+            water_data[2]['d_med12_1d'][0],
+            water_data[2]['f_med30_1d'][0],
+            water_data[2]['h_low_1d'][0]
+        ]
+
+        for k in ksat_SA:
+            output_hydro_params[soil_short][0]['Ksat2'][0]['SA'].append(k)
+
+        ksat_LA = [
+            water_data[2]['b_high_1d'][1],
+            water_data[2]['d_med12_1d'][1],
+            water_data[2]['f_med30_1d'][1],
+            water_data[2]['h_low_1d'][1]
+        ]
+
+        for k in ksat_LA:
+            output_hydro_params[soil_short][0]['Ksat2'][0]['LA'].append(k)
+
+        # Extract hydrology error % for each modality
 
 
+        hydro_error_SF = [
+            water_data[3]['a_high_0d'][0],
+            water_data[3]['c_med12_0d'][0],
+            water_data[3]['e_med30_0d'][0],
+            water_data[3]['g_low_0d'][0]
+        ]
 
+        for e in hydro_error_SF:
+            output_hydro_params[soil_short][0]['Err2'][0]['SF'].append(e)
+
+        hydro_error_LF = [
+            water_data[3]['a_high_0d'][1],
+            water_data[3]['c_med12_0d'][1],
+            water_data[3]['e_med30_0d'][1],
+            water_data[3]['g_low_0d'][1]
+        ]
+
+        for e in hydro_error_LF:
+            output_hydro_params[soil_short][0]['Err2'][0]['LF'].append(e)
+
+        hydro_error_SA = [
+            water_data[3]['b_high_1d'][0],
+            water_data[3]['d_med12_1d'][0],
+            water_data[3]['f_med30_1d'][0],
+            water_data[3]['h_low_1d'][0]
+        ]
+
+        for e in hydro_error_SA:
+            output_hydro_params[soil_short][0]['Err2'][0]['SA'].append(e)
+
+        hydro_error_LA = [
+            water_data[3]['b_high_1d'][1],
+            water_data[3]['d_med12_1d'][1],
+            water_data[3]['f_med30_1d'][1],
+            water_data[3]['h_low_1d'][1]
+        ]
+
+        for e in hydro_error_LA:
+            output_hydro_params[soil_short][0]['Err2'][0]['LA'].append(e)
+
+    return output_hydro_params
