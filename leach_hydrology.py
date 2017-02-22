@@ -4,6 +4,7 @@ from hydroplots import *
 
 def leachsim(kSat,  # 2.25 mm/min (13.5 cm/h - Crop Soil) - Alteck
              soil_height,  # mm
+             eff_height,
              soil,
              dtGA = 1,  # Timestep in minute
              StormD = 30,  # Storm duration in min
@@ -21,7 +22,7 @@ def leachsim(kSat,  # 2.25 mm/min (13.5 cm/h - Crop Soil) - Alteck
 
     wfs = psi * (ovSat - ov)  # Numerator in Green-Ampt's equation = (suction x distance to saturation)
     """ Microcosm Dimensions """
-    zl = soil_height  # Mixing layer depth
+
     d = (14.93 * 2)  # Diameter of falcon tube (mm)
     area = ((d / 2) ** 2) * 3.1416
 
@@ -29,6 +30,10 @@ def leachsim(kSat,  # 2.25 mm/min (13.5 cm/h - Crop Soil) - Alteck
     # Running each of the intesities in one loop
     for i in range(len(intensityM)):
         loop += 1
+        if loop == 1:
+            zl = soil_height
+        else:
+            zl = soil_height*eff_height
 
         """ Initialization """
         cum_time = 0.0
@@ -176,6 +181,7 @@ def leachsim(kSat,  # 2.25 mm/min (13.5 cm/h - Crop Soil) - Alteck
 def leachsim2(
         kSat,  # mm/min (13.5 cm/h - Crop Soil) - Alteck
         soil_height,  # mm
+        eff_height,
         soil,
         isAGED,
         isFirstCycle,
@@ -255,7 +261,7 @@ def leachsim2(
 
     wfs = psi * (ovSat - ov)  # Numerator in Green-Ampt's equation = (suction x distance to saturation)
     """ Microcosm Dimensions """
-    zl = soil_height  # Mixing layer depth
+    # zl = soil_height  # Mixing layer depth
     d = (14.93 * 2)  # Diameter of falcon tube (mm)
     area = ((d / 2) ** 2) * 3.1416
 
@@ -265,6 +271,10 @@ def leachsim2(
     for i in range(len(intensityM)):
         intensity_num += 1
         error = 10**9
+        if intensity_num == 1:
+            zl = soil_height
+        else:
+            zl = soil_height*eff_height
 
         # Test best kSats in range
         for k in kSat:
