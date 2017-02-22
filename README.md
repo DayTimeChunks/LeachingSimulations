@@ -1,6 +1,10 @@
 # LeachingSimulations
 Contaminant Transport in Microcosms
 
+For viewing in "nbviewer":
+http://nbviewer.jupyter.org/github/DayTimeChunks/LeachingSimulations/tree/master/
+
+
 This repository collects progress on leaching models written in python.  
 
 To contribute follow these steps: http://rogerdudler.github.io/git-guide/
