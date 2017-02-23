@@ -917,9 +917,16 @@ def pest_Kd_choice(
         if initial_condition == 'mean':
             mass_tot = mass_i
         elif initial_condition == 'min':
-            mass_tot = mass_i - initial_mass_error
+            try:
+                mass_tot = mass_i - initial_mass_error
+            except TypeError:
+                mass_tot = mass_i
+
         elif initial_condition == 'max':
-            mass_tot = mass_i + initial_mass_error
+            try:
+                mass_tot = mass_i + initial_mass_error
+            except TypeError:
+                mass_tot = mass_i
 
         if index % 2 == 0:
             k = Kd[0]
