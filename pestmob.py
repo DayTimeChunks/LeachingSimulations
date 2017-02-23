@@ -1827,16 +1827,18 @@ def choose_pesticide(
                 'g_low_0d': (1184.44, 20.5, 'nan', 59, 1.0, 'nan'),
                 'h_low_1d': (1177.45, 21.6, 'nan', 59, 1.1, 'nan')
             }
+
             pest_dict_L_1st = {
                 'a_high_0d': (1626.66, 0.7, 'nan', 81, 0.03, 'nan'),
                 'b_high_1d': (1106.95, 'nan', 'nan', 55, 'nan', 'nan'),
                 'c_med12_0d': (1626.66, 0.4, 'nan', 81, 0.02, 'nan'),
-                'd_med12_1d': (1106.95, 'nan', 'nan', 55, 0.02, 'nan'),
+                'd_med12_1d': (1106.95, 0.4, 'nan', 55, 0.02, 'nan'),
                 'e_med30_0d': (1626.66, 40.0, 'nan', 81, 2.0, 'nan'),
-                'f_med30_1d': (1106.95, 'nan', 'nan', 55, 1.7, 'nan'),
+                'f_med30_1d': (1106.95, 34.0, 'nan', 55, 1.7, 'nan'),
                 'g_low_0d': (1626.66, 1.5, 'nan', 81, 0.07, 'nan'),
-                'h_low_1d': (1106.95, 'nan', 'nan', 55, 0.04, 'nan')
+                'h_low_1d': (1106.95, 0.8, 'nan', 55, 0.04, 'nan')
             }
+
             pest_dict_S_2nd = {
                 'a_high_0d': (1175.8, 4.85, 'nan', 60, 0.24, 'nan'),
                 'b_high_1d': (1163.5, 0.74, 'nan', 59, 0.04, 'nan'),
@@ -1847,6 +1849,7 @@ def choose_pesticide(
                 'g_low_0d': (1163.9, 8.61, 'nan', 60, 0.43, 'nan'),
                 'h_low_1d': (1155.8, 'nan', 'nan', 60, 'nan', 'nan')
             }
+
             pest_dict_L_2nd = {
                 'a_high_0d': (1626.0, 0.59, 'nan', 81.4, 0.3, 'nan'),
                 'b_high_1d': (1106.5, 'nan', 'nan', 55.4, 'nan', 'nan'),
