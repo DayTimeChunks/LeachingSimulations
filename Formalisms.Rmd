@@ -1,0 +1,26 @@
+---
+title: "Leaching Model"
+author: "PAZ"
+date: "23 août 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message = FALSE, tidy=TRUE)
+# Sys.setlocale("LC_ALL", "English")
+```
+
+# Introduction
+
+This document describes how the formalisms where implemented. The source of each function is provided at the start of each dunch description.
+
+## Percolation and Ponding
+
+Percolation and ponding are generated in *greenampt.py*. The key steps will be described after. Important to know is that the function "greenampt()"
+
+
+```{python}
+
+
+```
+
